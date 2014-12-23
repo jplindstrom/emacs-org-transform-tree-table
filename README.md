@@ -69,7 +69,17 @@ Transforms into:
 
 
 
-## Examples
+## Installation
+
+Install using MELPA.
+
+Or put in load-path and initialize with:
+
+   (require 'org-transform-tree-table)
+
+
+
+## Larger Example
 
 Let's say you have an outline like this.
 
