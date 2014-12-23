@@ -131,6 +131,9 @@ the user has added to capture information)."
     (with-current-buffer target-buffer
       (funcall render-fun rows-cols))
 
+    (switch-to-buffer target-buffer)
+    (goto-char (point-min))
+
     target-buffer
     ))
 
@@ -250,6 +253,7 @@ the end and not mix with the actual data."
     (org-mode)
     (--each rows-cols
       (ott/org-table/insert-values-as-table-row it))
+    (org-table-align)
   )
 
 (defun ott/org-table/insert-values-as-table-row (col-values)
