@@ -182,6 +182,17 @@ Raise an error if point isn't on an org-table."
    'ott/org-tree/render-rows-cols)
   )
 
+;;;###autoload
+(defun org-transform-table/org-tree-buffer-from-csv ()
+  "Transform the buffer CSV table to an org-mode outline and
+return a new buffer with the new tree."
+  (interactive)
+  (ott/render-new-buffer-from-rows-cols
+   "-tree.csv"
+   (ott/csv-table/parse-rows-cols)
+   'ott/org-tree/render-rows-cols)
+  )
+
 
 
 ;; Main
@@ -402,6 +413,23 @@ empty string for nil values."
 
 ;; Render/parse CSV table (tab separated)
 
+(defun ott/csv-table/parse-rows-cols ()
+  "Parse the buffer CSV table (tab separated) and return a list
+of rows with a list of cols.
+
+If there isn't an org-table at point, raise an error."
+  (let* (
+         (table-text (buffer-substring-no-properties (point-min) (point-max)))
+         (lines (org-split-string table-text "\n"))
+         (rows-cols
+          (mapcar
+           (lambda (line)
+             (org-split-string (org-trim line) "\t")
+             )
+           lines))
+         )
+    rows-cols))
+
 (defun ott/csv-table/render-rows-cols (rows-cols)
   "Insert a CSV table with the ROWS-COLS."
     (erase-buffer) ;; JPL: remove later
@@ -425,22 +453,22 @@ empty string for nil values."
 
 
 
-(defun org-transform-table/org-tree-buffer-from-csv ()
-
-  )
-
-
-
 
 ;; Test
 
-(ert-run-tests-interactively "^ott-")
+;; (ert-run-tests-interactively "^ott-")
 
-(set-buffer "expected-tree1-heading--table.org")
-(org-transform-table/org-tree-buffer-from-org-table)
+;; (set-buffer "expected-org-table1--tree.org")
+;; (org-transform-table/org-tree-buffer-from-org-table)
+
+;; (set-buffer "table1.csv")
+;; (org-transform-table/org-tree-buffer-from-csv)
 
 ;; (set-buffer "tree1.org")
 ;; (org-transform-tree/org-table-buffer-from-outline)
+
+;; (set-buffer "tree1.org")
+;; (org-transform-tree/csv-buffer-from-outline)
 
 
 
