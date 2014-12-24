@@ -94,7 +94,7 @@ Let's say you have an outline like this.
     *** Advanced
     *** Super Advanced
 
-with the two columns degined under "* Pages"
+with the two columns defined under "* Pages"
 
   :COLUMNS:  %30ITEM %10Access %10Cost
 
