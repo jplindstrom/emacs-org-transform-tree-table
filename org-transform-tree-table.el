@@ -364,10 +364,54 @@ empty string for nil values."
 
 
 
+
+
+
+
+(defun org-transform-table/org-tree-buffer-from-org-table ()
+  ""
+  (interactive)
+  (when (not (org-at-table-p)) (error "Not in an org table"))
+  (let* (
+         (rows-cols (ott/rows-cols-from-org-table))
+         (title-row (-take 1 rows-cols))
+         (data-rows-cols (cdr rows-cols))
+         )
+    )
+  
+  )
+
+(defun org-transform-table/org-tree-buffer-from-csv ()
+
+  )
+
+
+(defun ott/rows-cols-from-org-table ()
+  ""
+  (save-excursion
+    (let* ((beg (org-table-begin))
+           (end (org-table-end))
+           (table-text (buffer-substring-no-properties beg end))
+           (lines (org-split-string table-text "[ \t]*\n[ \t]*"))
+           (rows-cols
+            (mapcar
+             (lambda (line)
+               (org-split-string (org-trim line) "\\s-*|\\s-*"))
+             lines))
+           )
+      rows-cols)))
+
+
+
 ;; Test
 
-(set-buffer "tree1.org")
-(org-transform-tree/org-table-buffer-from-outline)
+;; (set-buffer "tree1.org")
+;; (org-transform-tree/org-table-buffer-from-outline)
+
+
+(set-buffer "expected-tree1-heading--table.org")
+(org-transform-table/org-tree-buffer-from-org-table)
+
 
 
 
