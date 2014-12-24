@@ -135,8 +135,9 @@ However, all special properties (e.g. 'COLUMNS', '*_ALL') are
 placed after all the user properties (i.e. whatever properties
 the user has added to capture information)."
   (interactive)
-  (ott/table-buffer-from-outline
+  (ott/render-new-buffer-from-rows-cols
    "-table.org"
+   (ott/rows-cols-from-tree)
    'ott/org-table/render-rows-cols)
   )
 
@@ -163,30 +164,19 @@ However, all special properties (e.g. 'COLUMNS', '*_ALL') are
 placed after all the user properties (i.e. whatever properties
 the user has added to capture information)."
   (interactive)
-  (ott/table-buffer-from-outline
+  (ott/render-new-buffer-from-rows-cols
    ".csv"
+   (ott/rows-cols-from-tree)
    'ott/csv-table/render-rows-cols)
   )
 
 
 ;; Main
 
-(defun ott/table-buffer-from-outline (type render-fun)
-  "Convert an org tree to a table and return a new buffer with the table.
-
-If the region is active, convert that part of the
-tree. Otherwise, if point is on an org heading, convert that
-subtree. Otherwise convert the buffer.
-
-In the resulting table, row one is the column titles. The rest of
-the rows are property values.
-
-Column one is the outline heading, and the rest are the
-properties in the order they first appear in the buffer.
-
-However, all special properties (e.g. 'COLUMNS', '*_ALL') are
-placed after all the user properties (i.e. whatever properties
-the user has added to capture information)."
+(defun ott/render-new-buffer-from-rows-cols (type rows-cols render-fun)
+  "Render ROWS-COLS to a table using RENDER-FUN and return a new
+buffer with the table. Name the new buffer after the current
+buffer file name and TYPE."
   (let* ((target-buffer
           (get-buffer-create (concat (buffer-name) type)) ;; Use the other one later
           ;; (create-file-buffer (concat (or (buffer-file-name) "new") type))
@@ -381,7 +371,6 @@ empty string for nil values."
          )
     ;; (message "JPL: %s" (prin1-to-string title-row))
 
-    ott/table-buffer-from-outline
     
 
     (dolist (row-cols data-dows-cols)
@@ -430,6 +419,8 @@ empty string for nil values."
 ;; (set-buffer "expected-tree1-heading--table.org")
 ;; (org-transform-table/org-tree-buffer-from-org-table)
 
+
+(ert-run-tests-interactively "^ott-")
 
 
 
