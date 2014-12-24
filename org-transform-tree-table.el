@@ -409,8 +409,8 @@ empty string for nil values."
 ;; (org-transform-tree/org-table-buffer-from-outline)
 
 
-(set-buffer "expected-tree1-heading--table.org")
-(org-transform-table/org-tree-buffer-from-org-table)
+;; (set-buffer "expected-tree1-heading--table.org")
+;; (org-transform-table/org-tree-buffer-from-org-table)
 
 
 
