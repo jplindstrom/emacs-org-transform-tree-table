@@ -108,7 +108,6 @@
 
 
 
-
 (require 'dash)
 (require 's)
 
@@ -170,6 +169,7 @@ the user has added to capture information)."
    'ott/csv-table/render-rows-cols)
   )
 
+;;;###autoload
 (defun org-transform-table/org-tree-buffer-from-org-table ()
   "Transform the org-table at point to an org-mode outline and
 return a new buffer with the new tree.
@@ -181,7 +181,6 @@ Raise an error if point isn't on an org-table."
    (ott/org-table/parse-rows-cols)
    'ott/org-tree/render-rows-cols)
   )
-
 
 
 
@@ -205,7 +204,9 @@ buffer file name and TYPE."
     ))
 
 
-;;;###autoload
+
+;; render/parse org tree
+
 (defun ott/org-tree/parse-rows-cols ()
   "Return a list of rows, with a list of columns from the org
 tree.
@@ -223,13 +224,13 @@ editing."
   (save-excursion
     (let* (
            (ordered-property-keys
-            (ott/user-then-special-property-keys
-             (ott/unique-propery-keys-in-buffer-order)))
+            (ott/org-tree/user-then-special-property-keys
+             (ott/org-tree/unique-propery-keys-in-buffer-order)))
 
            (col-title-values (cons "Heading" ordered-property-keys))
 
            (row-col-data-values
-            (ott/row-col-property-values ordered-property-keys))
+            (ott/org-tree/row-col-property-values ordered-property-keys))
            )
       (cons
        col-title-values
@@ -238,49 +239,86 @@ editing."
     )
   )
 
-(defun ott/row-col-property-values (property-keys)
+(defun ott/org-tree/render-rows-cols (rows-cols)
+  "Insert an org-tree with the ROWS-COLS."
+  (erase-buffer) ;; JPL: remove later
+  (org-mode)
+  (let* (
+         (data-rows-cols (cdr rows-cols))
+         (title-row (car rows-cols))
+         ;; All but the first item, which is the Heading title col
+         (property-title-cols (cdr title-row))
+         ;; Reverse, to render the special cols first in the drawer
+         (reverse-property-title-cols (reverse property-title-cols))
+         )
+
+    (dolist (row-cols data-rows-cols)
+      (let* (
+             (heading-col (car row-cols))
+             (property-cols (cdr row-cols))
+             )
+
+        ;; Insert heading
+        (insert (concat heading-col "\n"))
+
+        ;; Set properties
+        ;; Reverse to render special ones first
+        (--zip-with
+         (when (and other (not (string= other "")))
+           ;;JPL: escape properties? or is that done by org-entry-put?
+           (org-entry-put nil it other)
+           )
+         reverse-property-title-cols
+         (reverse property-cols))
+
+        (outline-next-heading)
+        )
+      )
+    )
+  )
+
+(defun ott/org-tree/row-col-property-values (property-keys)
   "Return list of rows with a list of columns that are property
 values for the PROPERTY-KEYS for each tree heading."
-  (ott/map-entries
+  (ott/org-tree/map-entries
    (lambda ()
      (cons
-      (ott/level-and-heading (org-heading-components)) ; Heading
-      (ott/current-property-values-from-keys property-keys)))
-   ))
+      (ott/org-tree/level-and-heading (org-heading-components)) ; Heading
+      (ott/org-tree/current-property-values-from-keys property-keys)))
+   )
+  )
 
-(defun ott/active-scope ()
+(defun ott/org-tree/active-scope ()
   "Return a scope modifier depending on whether the region is
 active, or whether point is on a org heading, or not."
   (if (org-region-active-p) 'region
     (if (org-at-heading-p) 'tree
       nil))) ;; Entire buffer
 
-(defun ott/map-entries (fun)
+(defun ott/org-tree/map-entries (fun)
   "Run org-map-entries with FUN in the active scope"
-    (org-map-entries fun nil (ott/active-scope)))
+    (org-map-entries fun nil (ott/org-tree/active-scope)))
 
-(defun ott/level-and-heading (heading-components)
+(defun ott/org-tree/level-and-heading (heading-components)
   "Return the *** level and the heading text of
 ORG-HEADING-COMPONENTS"
   (let ((level (nth 1 heading-components))
         (heading-text (nth 4 heading-components)))
     (concat (make-string level ?*) " " heading-text)))
 
-(defun ott/current-property-values-from-keys (property-keys)
+(defun ott/org-tree/current-property-values-from-keys (property-keys)
   "Return list of values (possibly nil) for each property in
 PROPERTY-KEYS."
   (mapcar
    (lambda (key)
      (alist-value (org-entry-properties nil 'standard key) key))
-   property-keys
-   )
-  )
+   property-keys))
 
-(defun ott/unique-propery-keys-in-buffer-order ()
+(defun ott/org-tree/unique-propery-keys-in-buffer-order ()
   "Return list of all unique property keys used in drawers. They
 are in the order they appear in the buffer."
   (let* ((entries-keys
-          (ott/map-entries
+          (ott/org-tree/map-entries
            (lambda () (mapcar 'car (org-entry-properties nil 'standard)))))
          (all-keys '())
          )
@@ -293,7 +331,7 @@ are in the order they appear in the buffer."
     )
   )
 
-(defun ott/user-then-special-property-keys (property-keys)
+(defun ott/org-tree/user-then-special-property-keys (property-keys)
   "Return list with items in PROPERTY-KEYS, but where all column
 properties are first and all special properties are at the end.
 
@@ -302,9 +340,9 @@ Column properties are properties the user would normally enter.
 Special properties are things like 'COLUMNS' or 'Someting_ALL',
 which are instructions for org-mode. They should typically go at
 the end and not mix with the actual data."
-  (-flatten (-separate 'ott/org-is-col-property property-keys)))
+  (-flatten (-separate 'ott/org-tree/is-col-property property-keys)))
 
-(defun ott/org-is-col-property (key)
+(defun ott/org-tree/is-col-property (key)
   "Is KEY a column / user-data level property?"
   (if (string= key "COLUMNS") nil
     (if (string-match "._ALL$" key) nil
@@ -313,6 +351,27 @@ the end and not mix with the actual data."
 
 
 ;; render/parse org table
+
+(defun ott/org-table/parse-rows-cols ()
+  "Parse the org-table at point and return a list of rows with a
+list of cols.
+
+If there isn't an org-table at point, raise an error."
+  (when (not (org-at-table-p)) (error "Not in an org table"))
+  (let* ((beg (org-table-begin))
+         (end (org-table-end))
+         (table-text (buffer-substring-no-properties beg end))
+         (lines (org-split-string table-text "[ \t]*\n[ \t]*"))
+         ;; JPL: ignore horizontal lines
+         (rows-cols
+          (mapcar
+           (lambda (line)
+             ;;JPL: unescape e.g. \vert
+             (org-split-string (org-trim line) "\\s-*|\\s-*")
+             )
+           lines))
+         )
+    rows-cols))
 
 (defun ott/org-table/render-rows-cols (rows-cols)
   "Insert an org-table with the ROWS-COLS."
@@ -338,26 +397,6 @@ empty string for nil values."
   (if value
       (replace-regexp-in-string "|" "\\\\vert{}" value)
     ""))
-
-(defun ott/org-table/parse-rows-cols ()
-  "Parse the org-table at point and return a list of rows (with a
-list of cols).
-
-If there isn't an org-table at point, raise an error."
-  (when (not (org-at-table-p)) (error "Not in an org table"))
-  (let* ((beg (org-table-begin))
-         (end (org-table-end))
-         (table-text (buffer-substring-no-properties beg end))
-         (lines (org-split-string table-text "[ \t]*\n[ \t]*"))
-         (rows-cols
-          (mapcar
-           (lambda (line)
-             ;;JPL: unescape e.g. \vert
-             (org-split-string (org-trim line) "\\s-*|\\s-*")
-             )
-           lines))
-         )
-    rows-cols))
 
 
 
@@ -385,48 +424,6 @@ empty string for nil values."
     ""))
 
 
-
-
-
-
-
-(defun ott/org-tree/render-rows-cols (rows-cols)
-  "Insert an org-tree with the ROWS-COLS."
-  (erase-buffer) ;; JPL: remove later
-  (org-mode)
-  (let* (
-         (data-rows-cols (cdr rows-cols))
-         (title-row (car rows-cols))
-         ;; All but the first item, which is the Heading title col
-         (property-title-cols (cdr title-row))
-         ;; Reverse, to get the special cols first in the drawer
-         (reverse-property-title-cols (reverse property-title-cols))
-             )
-
-        (dolist (row-cols data-rows-cols)
-          (let* (
-                 (heading-col (car row-cols))
-                 (property-cols (cdr row-cols))
-                 )
-            ;; Insert heading
-            (insert (concat heading-col "\n"))
-
-            ;; Set properties
-            ;; reverse to get special first
-            (--zip-with
-             (when (and other (not (string= other "")))
-               ;;JPL: escape properties? or is that done by org-entry-put
-           (org-entry-put nil it other)
-           )
-         reverse-property-title-cols
-         (reverse property-cols))
-
-        (outline-next-heading)
-        )
-      )
-    )
-
-  )
 
 (defun org-transform-table/org-tree-buffer-from-csv ()
 
