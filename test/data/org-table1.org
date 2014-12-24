@@ -1,0 +1,5 @@
+| Heading                                    | Property_a | Property_b           | ABC | COLUMNS                    | ABC_ALL         |
+| ** Second B                                |          1 | Second B             |     | %30ITEM %20ABC %20DEF %GHI | ABC DEF GHI     |
+| *** B 1 - with \vert{} pipe                |            | B1 with \vert{} pipe |     | %30ITEM %20ABC %20DEF %GHI | ABC DEF GHI XYZ |
+| **** B 1 First                             |            | B 1 First            | XYZ |                            |                 |
+| *** B 2 - with, comma and 'a single quote' |            |                      |     |                            |                 |
