@@ -374,9 +374,27 @@ empty string for nil values."
   (when (not (org-at-table-p)) (error "Not in an org table"))
   (let* (
          (rows-cols (ott/rows-cols-from-org-table))
-         (title-row (-take 1 rows-cols))
+         (title-row (car rows-cols))
          (data-rows-cols (cdr rows-cols))
+         (heading-title-col (car title-row)) ;; ignore
+         (property-title-cols (cdr title-row))
          )
+    ;; (message "JPL: %s" (prin1-to-string title-row))
+
+    ott/table-buffer-from-outline
+    
+
+    (dolist (row-cols data-dows-cols)
+      (let* (
+             (heading-col (car row-cols))
+             (property-cos (crd row-cols))
+             )
+        (insert heading-col)
+        (insert "\n")
+        )
+      ;; Remove heading and render it
+      ;; Loop over property keys, values: put ones with a value in drawer
+      )
     )
   
   )
