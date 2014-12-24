@@ -298,7 +298,7 @@ the end and not mix with the actual data."
 
 
 
-;; Render org table
+;; render/parse org table
 
 (defun ott/org-table/render-rows-cols (rows-cols)
   "Insert an org-table with the ROWS-COLS."
@@ -325,9 +325,29 @@ empty string for nil values."
       (replace-regexp-in-string "|" "\\\\vert{}" value)
     ""))
 
+(defun ott/org-table/parse-rows-cols ()
+  "Parse the org-table at point and return a list of rows (with a
+list of cols).
+
+If there isn't an org-table at point, raise an error."
+  (when (not (org-at-table-p)) (error "Not in an org table"))
+  (let* ((beg (org-table-begin))
+         (end (org-table-end))
+         (table-text (buffer-substring-no-properties beg end))
+         (lines (org-split-string table-text "[ \t]*\n[ \t]*"))
+         (rows-cols
+          (mapcar
+           (lambda (line)
+             ;;JPL: unescape e.g. \vert
+             (org-split-string (org-trim line) "\\s-*|\\s-*")
+             )
+           lines))
+         )
+    rows-cols))
 
 
-;; Render CSV table (tab separated)
+
+;; Render/parse CSV table (tab separated)
 
 (defun ott/csv-table/render-rows-cols (rows-cols)
   "Insert a CSV table with the ROWS-COLS."
@@ -359,10 +379,9 @@ empty string for nil values."
 (defun org-transform-table/org-tree-buffer-from-org-table ()
   ""
   (interactive)
-  (when (not (org-at-table-p)) (error "Not in an org table"))
   (ott/render-new-buffer-from-rows-cols
    "-tree.org"
-   (ott/rows-cols-from-org-table)
+   (ott/org-table/parse-rows-cols)
    'ott/org-tree/render-rows-cols)
   )
 
@@ -409,34 +428,17 @@ empty string for nil values."
   )
 
 
-(defun ott/rows-cols-from-org-table ()
-  ""
-  (save-excursion
-    (let* ((beg (org-table-begin))
-           (end (org-table-end))
-           (table-text (buffer-substring-no-properties beg end))
-           (lines (org-split-string table-text "[ \t]*\n[ \t]*"))
-           (rows-cols
-            (mapcar
-             (lambda (line)
-               ;;JPL: unescape e.g. \vert
-               (org-split-string (org-trim line) "\\s-*|\\s-*")
-               )
-             lines))
-           )
-      rows-cols)))
-
 
 
 ;; Test
 
 ;; (ert-run-tests-interactively "^ott-")
 
-;; (set-buffer "tree1.org")
-;; (org-transform-tree/org-table-buffer-from-outline)
-
 ;; (set-buffer "expected-tree1-heading--table.org")
 ;; (org-transform-table/org-tree-buffer-from-org-table)
+
+;; (set-buffer "tree1.org")
+;; (org-transform-tree/org-table-buffer-from-outline)
 
 
 
