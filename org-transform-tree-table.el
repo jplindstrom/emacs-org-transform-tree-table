@@ -180,9 +180,7 @@ buffer file name and TYPE."
   (let* ((target-buffer
           (get-buffer-create (concat (buffer-name) type)) ;; Use the other one later
           ;; (create-file-buffer (concat (or (buffer-file-name) "new") type))
-          )
-         (rows-cols (ott/rows-cols-from-tree))
-         )
+          ))
     (with-current-buffer target-buffer
       (funcall render-fun rows-cols))
 
@@ -362,30 +360,48 @@ empty string for nil values."
   ""
   (interactive)
   (when (not (org-at-table-p)) (error "Not in an org table"))
+  (ott/render-new-buffer-from-rows-cols
+   "-tree.org"
+   (ott/rows-cols-from-org-table)
+   'ott/org-tree/render-rows-cols)
+  )
+
+(defun ott/org-tree/render-rows-cols (rows-cols)
+  "Insert an org-tree with the ROWS-COLS."
+  (erase-buffer) ;; JPL: remove later
+  (org-mode)
   (let* (
-         (rows-cols (ott/rows-cols-from-org-table))
-         (title-row (car rows-cols))
          (data-rows-cols (cdr rows-cols))
-         (heading-title-col (car title-row)) ;; ignore
+         (title-row (car rows-cols))
+         ;; All but the first item, which is the Heading title col
          (property-title-cols (cdr title-row))
-         )
-    ;; (message "JPL: %s" (prin1-to-string title-row))
-
-    
-
-    (dolist (row-cols data-dows-cols)
-      (let* (
-             (heading-col (car row-cols))
-             (property-cos (crd row-cols))
+         ;; Reverse, to get the special cols first in the drawer
+         (reverse-property-title-cols (reverse property-title-cols))
              )
-        (insert heading-col)
-        (insert "\n")
+
+        (dolist (row-cols data-rows-cols)
+          (let* (
+                 (heading-col (car row-cols))
+                 (property-cols (cdr row-cols))
+                 )
+            ;; Insert heading
+            (insert (concat heading-col "\n"))
+
+            ;; Set properties
+            ;; reverse to get special first
+            (--zip-with
+             (when (and other (not (string= other "")))
+               ;;JPL: escape properties? or is that done by org-entry-put
+           (org-entry-put nil it other)
+           )
+         reverse-property-title-cols
+         (reverse property-cols))
+
+        (outline-next-heading)
         )
-      ;; Remove heading and render it
-      ;; Loop over property keys, values: put ones with a value in drawer
       )
     )
-  
+
   )
 
 (defun org-transform-table/org-tree-buffer-from-csv ()
@@ -403,7 +419,9 @@ empty string for nil values."
            (rows-cols
             (mapcar
              (lambda (line)
-               (org-split-string (org-trim line) "\\s-*|\\s-*"))
+               ;;JPL: unescape e.g. \vert
+               (org-split-string (org-trim line) "\\s-*|\\s-*")
+               )
              lines))
            )
       rows-cols)))
@@ -412,15 +430,14 @@ empty string for nil values."
 
 ;; Test
 
+;; (ert-run-tests-interactively "^ott-")
+
 ;; (set-buffer "tree1.org")
 ;; (org-transform-tree/org-table-buffer-from-outline)
-
 
 ;; (set-buffer "expected-tree1-heading--table.org")
 ;; (org-transform-table/org-tree-buffer-from-org-table)
 
-
-(ert-run-tests-interactively "^ott-")
 
 
 
