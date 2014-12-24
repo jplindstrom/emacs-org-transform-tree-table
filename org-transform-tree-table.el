@@ -137,7 +137,7 @@ the user has added to capture information)."
   (interactive)
   (ott/render-new-buffer-from-rows-cols
    "-table.org"
-   (ott/rows-cols-from-tree)
+   (ott/org-tree/parse-rows-cols)
    'ott/org-table/render-rows-cols)
   )
 
@@ -166,9 +166,23 @@ the user has added to capture information)."
   (interactive)
   (ott/render-new-buffer-from-rows-cols
    ".csv"
-   (ott/rows-cols-from-tree)
+   (ott/org-tree/parse-rows-cols)
    'ott/csv-table/render-rows-cols)
   )
+
+(defun org-transform-table/org-tree-buffer-from-org-table ()
+  "Transform the org-table at point to an org-mode outline and
+return a new buffer with the new tree.
+
+Raise an error if point isn't on an org-table."
+  (interactive)
+  (ott/render-new-buffer-from-rows-cols
+   "-tree.org"
+   (ott/org-table/parse-rows-cols)
+   'ott/org-tree/render-rows-cols)
+  )
+
+
 
 
 ;; Main
@@ -192,7 +206,7 @@ buffer file name and TYPE."
 
 
 ;;;###autoload
-(defun ott/rows-cols-from-tree ()
+(defun ott/org-tree/parse-rows-cols ()
   "Return a list of rows, with a list of columns from the org
 tree.
 
@@ -376,15 +390,6 @@ empty string for nil values."
 
 
 
-(defun org-transform-table/org-tree-buffer-from-org-table ()
-  ""
-  (interactive)
-  (ott/render-new-buffer-from-rows-cols
-   "-tree.org"
-   (ott/org-table/parse-rows-cols)
-   'ott/org-tree/render-rows-cols)
-  )
-
 (defun ott/org-tree/render-rows-cols (rows-cols)
   "Insert an org-tree with the ROWS-COLS."
   (erase-buffer) ;; JPL: remove later
@@ -432,10 +437,10 @@ empty string for nil values."
 
 ;; Test
 
-;; (ert-run-tests-interactively "^ott-")
+(ert-run-tests-interactively "^ott-")
 
-;; (set-buffer "expected-tree1-heading--table.org")
-;; (org-transform-table/org-tree-buffer-from-org-table)
+(set-buffer "expected-tree1-heading--table.org")
+(org-transform-table/org-tree-buffer-from-org-table)
 
 ;; (set-buffer "tree1.org")
 ;; (org-transform-tree/org-table-buffer-from-outline)
