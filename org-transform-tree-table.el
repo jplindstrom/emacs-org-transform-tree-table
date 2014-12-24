@@ -44,7 +44,7 @@
 ;;     M-x org-transform-tree/org-table-buffer-from-outline
 
 ;;     ;; To CSV (or rather, tab-separated value)
-;;     M-x org-transform-tree/csv-table-buffer-from-outline
+;;     M-x org-transform-tree/csv-buffer-from-outline
 
 ;; If the region is active, convert that part of the
 ;; tree. Otherwise, if point is on an org heading, convert that
