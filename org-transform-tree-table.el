@@ -25,22 +25,110 @@
 ;;
 ;;; Commentary:
 ;;
-;; Transform all of part of an org-mode outline and the properties to
-;; a table format (org-table or CSV)
-;;
+;; Transform an org-mode outline and its properties to a table format
+;; (org-table, CSV).
 
-;;
-;;; Installation:
-;;
-;; Put in load-path and initialize with:
+;; This makes it possible to have an outline with properties and work
+;; with it in column view. Then you can transform the outline to a table
+;; to share with others (export to CSV and open in Excel).
+
+;; More about column view:
+
+;; * http://orgmode.org/worg/org-tutorials/org-column-view-tutorial.html
+;; * http://orgmode.org/worg/org-tutorials/org-column-view-tutorial.html
+
+
+;; ## Usage
+
+;; ### From org tree to table
+
+;;     ;; Org outline to an org table
+;;     M-x org-transform-tree/org-table-buffer-from-outline
+
+;;     ;; Org outline to CSV (or rather, tab-separated value)
+;;     M-x org-transform-tree/csv-table-buffer-from-outline
+
+;; If the region is active, convert that part of the
+;; tree. Otherwise, if point is on an org heading, convert that
+;; heading and its subtree. Otherwise convert the buffer.
+
+;; In the resulting table, row one is the column titles. The rest of
+;; the rows are property values.
+
+;; Column one is the outline heading, and the rest are the
+;; properties in the order they first appear in the buffer.
+
+;; However, all special properties (e.g. 'COLUMNS', '*_ALL') are
+;; placed after all the user properties (i.e. whatever properties
+;; the user has added to capture information).
+
+
+;; ### From table to org tree
+
+;;     ;; From an org table to an org outline
+;;     M-x org-transform-table/org-tree-buffer-from-org-table
+
+;;     ;; From CSV (tab separated) to an org outline
+;;     M-x org-transform-table/org-tree-buffer-from-csv
+
+;; When converting from an org table, point must be on a table.
+
+;; When converting CSV, convert the buffer.
+
+;; ## Tiny example
+
+;; This outline:
+
+;;     * Pages
+;;       :PROPERTIES:
+;;       :COLUMNS:  %30ITEM %10Access %10Cost
+;;       :END:
+;;     ** Products
+;;        :PROPERTIES:
+;;        :Access:   All
+;;        :END:
+;;     *** Free Widget
+;;         :PROPERTIES:
+;;         :Access:   All
+;;         :END:
+;;     *** Paid Thingy
+;;         :PROPERTIES:
+;;         :Access:   Paid
+;;         :Cost:     30
+;;         :END:
+
+;; Transforms into:
+
+;;     | Heading         | Access | Cost | COLUMNS                   |
+;;     | * Pages         |        |      | %30ITEM %10Access %10Cost |
+;;     | ** Products     | All    |      |                           |
+;;     | *** Free Widget | All    |      |                           |
+;;     | *** Paid Thingy | Paid   |   30 |                           |
+
+;; Note that the special property COLUMNS are out on the right, to be out
+;; of the way when the table is being edited in e.g. Excel or Open
+;; Office.
+
+;; This also means the transformation is only 99% round-trip safe and the
+;; first time you go back to a tree representation, you'll get more diffs
+;; than subsequent ones.
+
+
+;; ## Installation
+
+;; Install org-transform-tree using MELPA.
+
+;; Or clone the repo into somewhere in the load-path. 
+
+;;     git clone https://github.com/jplindstrom/emacs-org-transform-tree-table.git
+
+;; and initialize with:
+
 ;;    (require 'org-transform-tree-table)
-;;
-;;
 
-;;; Changes
+;; ## Changes
 ;;
 ;; 2014-12-23 - 0.1
-
 
 
 
@@ -70,8 +158,9 @@ However, all special properties (e.g. 'COLUMNS', '*_ALL') are
 placed after all the user properties (i.e. whatever properties
 the user has added to capture information)."
   (interactive)
-  (ott/table-buffer-from-outline
+  (ott/render-new-buffer-from-rows-cols
    "-table.org"
+   (ott/org-tree/parse-rows-cols)
    'ott/org-table/render-rows-cols)
   )
 
@@ -98,36 +187,48 @@ However, all special properties (e.g. 'COLUMNS', '*_ALL') are
 placed after all the user properties (i.e. whatever properties
 the user has added to capture information)."
   (interactive)
-  (ott/table-buffer-from-outline
+  (ott/render-new-buffer-from-rows-cols
    ".csv"
+   (ott/org-tree/parse-rows-cols)
    'ott/csv-table/render-rows-cols)
   )
+
+;;;###autoload
+(defun org-transform-table/org-tree-buffer-from-org-table ()
+  "Transform the org-table at point to an org-mode outline and
+return a new buffer with the new tree.
+
+Raise an error if point isn't on an org-table."
+  (interactive)
+  (ott/render-new-buffer-from-rows-cols
+   "-tree.org"
+   (ott/org-table/parse-rows-cols)
+   'ott/org-tree/render-rows-cols)
+  )
+
+;;;###autoload
+(defun org-transform-table/org-tree-buffer-from-csv ()
+  "Transform the buffer CSV table to an org-mode outline and
+return a new buffer with the new tree."
+  (interactive)
+  (ott/render-new-buffer-from-rows-cols
+   "-tree.csv"
+   (ott/csv-table/parse-rows-cols)
+   'ott/org-tree/render-rows-cols)
+  )
+
 
 
 ;; Main
 
-(defun ott/table-buffer-from-outline (type render-fun)
-  "Convert an org tree to a table and return a new buffer with the table.
-
-If the region is active, convert that part of the
-tree. Otherwise, if point is on an org heading, convert that
-subtree. Otherwise convert the buffer.
-
-In the resulting table, row one is the column titles. The rest of
-the rows are property values.
-
-Column one is the outline heading, and the rest are the
-properties in the order they first appear in the buffer.
-
-However, all special properties (e.g. 'COLUMNS', '*_ALL') are
-placed after all the user properties (i.e. whatever properties
-the user has added to capture information)."
+(defun ott/render-new-buffer-from-rows-cols (type rows-cols render-fun)
+  "Render ROWS-COLS to a table using RENDER-FUN and return a new
+buffer with the table. Name the new buffer after the current
+buffer file name and TYPE."
   (let* ((target-buffer
           (get-buffer-create (concat (buffer-name) type)) ;; Use the other one later
           ;; (create-file-buffer (concat (or (buffer-file-name) "new") type))
-          )
-         (rows-cols (ott/rows-cols-from-tree))
-         )
+          ))
     (with-current-buffer target-buffer
       (funcall render-fun rows-cols))
 
@@ -138,8 +239,10 @@ the user has added to capture information)."
     ))
 
 
-;;;###autoload
-(defun ott/rows-cols-from-tree ()
+
+;; render/parse org tree
+
+(defun ott/org-tree/parse-rows-cols ()
   "Return a list of rows, with a list of columns from the org
 tree.
 
@@ -156,13 +259,13 @@ editing."
   (save-excursion
     (let* (
            (ordered-property-keys
-            (ott/user-then-special-property-keys
-             (ott/unique-propery-keys-in-buffer-order)))
+            (ott/org-tree/user-then-special-property-keys
+             (ott/org-tree/unique-propery-keys-in-buffer-order)))
 
            (col-title-values (cons "Heading" ordered-property-keys))
 
            (row-col-data-values
-            (ott/row-col-property-values ordered-property-keys))
+            (ott/org-tree/row-col-property-values ordered-property-keys))
            )
       (cons
        col-title-values
@@ -171,49 +274,86 @@ editing."
     )
   )
 
-(defun ott/row-col-property-values (property-keys)
+(defun ott/org-tree/render-rows-cols (rows-cols)
+  "Insert an org-tree with the ROWS-COLS."
+  (erase-buffer) ;; JPL: remove later
+  (org-mode)
+  (let* (
+         (data-rows-cols (cdr rows-cols))
+         (title-row (car rows-cols))
+         ;; All but the first item, which is the Heading title col
+         (property-title-cols (cdr title-row))
+         ;; Reverse, to render the special cols first in the drawer
+         (reverse-property-title-cols (reverse property-title-cols))
+         )
+
+    (dolist (row-cols data-rows-cols)
+      (let* (
+             (heading-col (car row-cols))
+             (property-cols (cdr row-cols))
+             )
+
+        ;; Insert heading
+        (insert (concat heading-col "\n"))
+
+        ;; Set properties
+        ;; Reverse to render special ones first
+        (--zip-with
+         (when (and other (not (string= other "")))
+           ;;JPL: escape properties? or is that done by org-entry-put?
+           (org-entry-put nil it other)
+           )
+         reverse-property-title-cols
+         (reverse property-cols))
+
+        (outline-next-heading)
+        )
+      )
+    )
+  )
+
+(defun ott/org-tree/row-col-property-values (property-keys)
   "Return list of rows with a list of columns that are property
 values for the PROPERTY-KEYS for each tree heading."
-  (ott/map-entries
+  (ott/org-tree/map-entries
    (lambda ()
      (cons
-      (ott/level-and-heading (org-heading-components)) ; Heading
-      (ott/current-property-values-from-keys property-keys)))
-   ))
+      (ott/org-tree/level-and-heading (org-heading-components)) ; Heading
+      (ott/org-tree/current-property-values-from-keys property-keys)))
+   )
+  )
 
-(defun ott/active-scope ()
+(defun ott/org-tree/active-scope ()
   "Return a scope modifier depending on whether the region is
 active, or whether point is on a org heading, or not."
   (if (org-region-active-p) 'region
     (if (org-at-heading-p) 'tree
       nil))) ;; Entire buffer
 
-(defun ott/map-entries (fun)
+(defun ott/org-tree/map-entries (fun)
   "Run org-map-entries with FUN in the active scope"
-    (org-map-entries fun nil (ott/active-scope)))
+    (org-map-entries fun nil (ott/org-tree/active-scope)))
 
-(defun ott/level-and-heading (heading-components)
+(defun ott/org-tree/level-and-heading (heading-components)
   "Return the *** level and the heading text of
 ORG-HEADING-COMPONENTS"
   (let ((level (nth 1 heading-components))
         (heading-text (nth 4 heading-components)))
     (concat (make-string level ?*) " " heading-text)))
 
-(defun ott/current-property-values-from-keys (property-keys)
+(defun ott/org-tree/current-property-values-from-keys (property-keys)
   "Return list of values (possibly nil) for each property in
 PROPERTY-KEYS."
   (mapcar
    (lambda (key)
      (alist-value (org-entry-properties nil 'standard key) key))
-   property-keys
-   )
-  )
+   property-keys))
 
-(defun ott/unique-propery-keys-in-buffer-order ()
+(defun ott/org-tree/unique-propery-keys-in-buffer-order ()
   "Return list of all unique property keys used in drawers. They
 are in the order they appear in the buffer."
   (let* ((entries-keys
-          (ott/map-entries
+          (ott/org-tree/map-entries
            (lambda () (mapcar 'car (org-entry-properties nil 'standard)))))
          (all-keys '())
          )
@@ -226,7 +366,7 @@ are in the order they appear in the buffer."
     )
   )
 
-(defun ott/user-then-special-property-keys (property-keys)
+(defun ott/org-tree/user-then-special-property-keys (property-keys)
   "Return list with items in PROPERTY-KEYS, but where all column
 properties are first and all special properties are at the end.
 
@@ -235,9 +375,9 @@ Column properties are properties the user would normally enter.
 Special properties are things like 'COLUMNS' or 'Someting_ALL',
 which are instructions for org-mode. They should typically go at
 the end and not mix with the actual data."
-  (-flatten (-separate 'ott/org-is-col-property property-keys)))
+  (-flatten (-separate 'ott/org-tree/is-col-property property-keys)))
 
-(defun ott/org-is-col-property (key)
+(defun ott/org-tree/is-col-property (key)
   "Is KEY a column / user-data level property?"
   (if (string= key "COLUMNS") nil
     (if (string-match "._ALL$" key) nil
@@ -245,7 +385,28 @@ the end and not mix with the actual data."
 
 
 
-;; Render org table
+;; render/parse org table
+
+(defun ott/org-table/parse-rows-cols ()
+  "Parse the org-table at point and return a list of rows with a
+list of cols.
+
+If there isn't an org-table at point, raise an error."
+  (when (not (org-at-table-p)) (error "Not in an org table"))
+  (let* ((beg (org-table-begin))
+         (end (org-table-end))
+         (table-text (buffer-substring-no-properties beg end))
+         (lines (org-split-string table-text "[ \t]*\n[ \t]*"))
+         ;; JPL: ignore horizontal lines
+         (rows-cols
+          (mapcar
+           (lambda (line)
+             ;;JPL: unescape e.g. \vert
+             (org-split-string (org-trim line) "\\s-*|\\s-*")
+             )
+           lines))
+         )
+    rows-cols))
 
 (defun ott/org-table/render-rows-cols (rows-cols)
   "Insert an org-table with the ROWS-COLS."
@@ -274,7 +435,24 @@ empty string for nil values."
 
 
 
-;; Render CSV table (tab separated)
+;; Render/parse CSV table (tab separated)
+
+(defun ott/csv-table/parse-rows-cols ()
+  "Parse the buffer CSV table (tab separated) and return a list
+of rows with a list of cols.
+
+If there isn't an org-table at point, raise an error."
+  (let* (
+         (table-text (buffer-substring-no-properties (point-min) (point-max)))
+         (lines (org-split-string table-text "\n"))
+         (rows-cols
+          (mapcar
+           (lambda (line)
+             (org-split-string (org-trim line) "\t")
+             )
+           lines))
+         )
+    rows-cols))
 
 (defun ott/csv-table/render-rows-cols (rows-cols)
   "Insert a CSV table with the ROWS-COLS."
@@ -299,10 +477,23 @@ empty string for nil values."
 
 
 
+
 ;; Test
 
-(set-buffer "tree1.org")
-(org-transform-tree/org-table-buffer-from-outline)
+;; (ert-run-tests-interactively "^ott-")
+
+;; (set-buffer "expected-org-table1--tree.org")
+;; (org-transform-table/org-tree-buffer-from-org-table)
+
+;; (set-buffer "table1.csv")
+;; (org-transform-table/org-tree-buffer-from-csv)
+
+;; (set-buffer "tree1.org")
+;; (org-transform-tree/org-table-buffer-from-outline)
+
+;; (set-buffer "tree1.org")
+;; (org-transform-tree/csv-buffer-from-outline)
+
 
 
 

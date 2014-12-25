@@ -1,4 +1,4 @@
-| Heading | DEF | ABC | Property_a | Property_b | COLUMNS | ABC_ALL |
-| *** A 2 | there | With, comma |  |  |  |  |
-| ** Second B |  |  | 1 | Second B | %30ITEM %20ABC %20DEF %GHI | ABC DEF GHI |
-| *** B 1 - with \vert{} pipe |  |  |  | B1 with \vert{} pipe | %30ITEM %20ABC %20DEF %GHI | ABC DEF GHI XYZ |
+| Heading                     | DEF   | ABC         | Property_a | Property_b           | COLUMNS                    | ABC_ALL         |
+| *** A 2                     | there | With, comma |            |                      |                            |                 |
+| ** Second B                 |       |             |          1 | Second B             | %30ITEM %20ABC %20DEF %GHI | ABC DEF GHI     |
+| *** B 1 - with \vert{} pipe |       |             |            | B1 with \vert{} pipe | %30ITEM %20ABC %20DEF %GHI | ABC DEF GHI XYZ |

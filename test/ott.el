@@ -120,6 +120,54 @@
   )
 
 
+
+(ert-deftest ott--transform-org-table-to-tree ()
+  "Check that on org-table transforms ok to an org tree"
+
+  ;;;; Setup
+  (with-ott-org-file
+   "org-table1.org"
+
+   ;; Go to place in table
+   (goto-char (point-min))
+
+   ;;;; Run
+   (with-current-buffer
+       (org-transform-table/org-tree-buffer-from-org-table)
+     ;;;; Test
+     ;; Extraction did the right thing
+     (should
+      (string=
+       (buffer-substring-no-properties (point-min) (point-max))
+       (ott-data-file-string "expected-org-table1--tree.org")))
+     )
+   )
+  )
+
+(ert-deftest ott--transform-csv-buffer-to-tree ()
+  "Check that on csv table transforms ok to an org tree"
+
+  ;;;; Setup
+  (with-ott-org-file
+   "csv-table1.csv"
+
+   ;; Go to place in table
+   (goto-char (point-min))
+
+   ;;;; Run
+   (with-current-buffer
+       (org-transform-table/org-tree-buffer-from-csv)
+     ;;;; Test
+     ;; Extraction did the right thing
+     (should
+      (string=
+       (buffer-substring-no-properties (point-min) (point-max))
+       (ott-data-file-string "expected-csv-table1--tree.org")))
+     )
+   )
+  )
+
+
 ;; Run tests at eval-buffer time
 (ert-run-tests-interactively "^ott-")
 

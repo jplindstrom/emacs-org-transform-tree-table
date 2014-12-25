@@ -1,0 +1,14 @@
+Heading	Property_a	Property_b	ABC	DEF	inner_double_quotes	inner_single_quote	outer_double_quotes	outer_single_quote	COLUMNS	Property_a_ALL	ABC_ALL
+* First											
+** First A with property											
+* Second									%20ITEM %10Property_a %10Property_b %Property_c	1 2 3 "four five" six	
+** Second A	four five	ABC							%20ITEM %20ABC %20DEF		ABC "With space" "With, comma" "With | pipe"
+*** A 1			With | pipe	Hello							
+*** A 2			With, comma	there							
+** Second B	1	Second B							%30ITEM %20ABC %20DEF %GHI		ABC DEF GHI
+*** B 1 - with | pipe		B1 with | pipe							%30ITEM %20ABC %20DEF %GHI		ABC DEF GHI XYZ
+**** B 1 First		B 1 First	XYZ								
+*** B 2 - with, comma and 'a single quote'											
+** Second C											
+* Third - with "a double quote"											
+** "Third A with surroudning double quote"					an "inner" quote	an 'inner quote	"outer quotes"	'outer quote'			
