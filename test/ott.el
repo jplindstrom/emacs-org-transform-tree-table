@@ -121,7 +121,7 @@
 
 
 
-(ert-deftest ott--transform-org-tree-to-tree ()
+(ert-deftest ott--transform-org-table-to-tree ()
   "Check that on org-table transforms ok to an org tree"
 
   ;;;; Setup
