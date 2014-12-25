@@ -1,10 +1,11 @@
-;;; org-transform-tree-table.el --- Transform org-mode tree with properties to a table
+;;; org-transform-tree-table.el --- Transform org-mode tree with properties to a table, and the other way around
 
 ;; Copyright © 2014 Johan Lindstrom
 ;;
 ;; Author: Johan Lindstrom <buzzwordninja not_this_bit@googlemail.com>
 ;; URL: https://github.com/jplindstrom/emacs-org-transform-tree-table
-;; Version: 0.1
+;; Version: 0.1.0
+;; Package-Requires: ((dash "2.10.0") (s "1.3.0")
 ;; Keywords: org-mode table org-table tree csv convert
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -38,7 +39,7 @@
 ;; * http://orgmode.org/worg/org-tutorials/org-column-view-tutorial.html
 
 
-;; ## Usage
+;;; ## Usage
 
 ;; ### From org tree to table
 
@@ -114,7 +115,7 @@
 ;; than subsequent ones.
 
 
-;; ## Installation
+;;; ## Installation
 
 ;; Install org-transform-tree using MELPA.
 
@@ -126,9 +127,12 @@
 
 ;;    (require 'org-transform-tree-table)
 
-;; ## Changes
+
+;;; ## Changes
 ;;
-;; 2014-12-23 - 0.1
+;; 2014-12-23 - 0.1.1
+;;
+;; * Initial release
 
 
 
