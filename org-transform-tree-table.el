@@ -227,6 +227,19 @@ return a new buffer with the new tree."
    'ott/org-tree/render-rows-cols)
   )
 
+;;;###autoload
+(defun org-transform-tree-table/toggle ()
+  "Toggle between an outline subtree and an org-table, depending
+on what point is placed on."
+  (interactive)
+  (if (org-at-table-p)
+      (ott/tree-table/replace-table-with-tree)
+    (if (org-at-heading-p)
+      (ott/tree-table/replace-tree-with-table)
+      (error "Point isn't on an org heading or in an org table.")
+      ))
+  )
+
 
 
 ;; Main
@@ -482,6 +495,42 @@ empty string for nil values."
       value
     ""))
 
+
+
+;; Toggle subtree and table
+
+(defun ott/tree-table/replace-table-with-tree ()
+  ""
+  )
+
+(defun ott/tree-table/replace-tree-with-table ()
+  ""
+  (let* (
+         (region (ott/org-subtree-region))
+         (beg (car region))
+         (end (cdr region))
+         (current-buffer (current-buffer))
+         (table-buffer (org-transform-tree/org-table-buffer-from-outline))
+         )
+    (switch-to-buffer current-buffer)
+    (delete-region beg end)
+    (insert (with-current-buffer table-buffer (buffer-substring (point-min) (- (point-max) 1))))
+    (goto-char beg)
+    (kill-buffer table-buffer)
+    )
+  )
+
+(defun ott/org-subtree-region ()
+  "Return cons with (beg . end) of the current subtree"
+  (interactive)
+  (save-excursion
+    (save-match-data
+      (org-with-limited-levels
+       (cons
+        (progn (org-back-to-heading t) (point))
+        (progn (org-end-of-subtree t t)
+               (if (and (org-at-heading-p) (not (eobp))) (backward-char 1))
+               (point)))))))
 
 
 
