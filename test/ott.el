@@ -167,6 +167,36 @@
    )
   )
 
+(ert-deftest ott--transform-tree-to-org-table--roundtrip ()
+  "Check that a roundtrip tree->table then ->tree->table is identical"
+
+  ;;;; Setup
+  (with-ott-org-file
+   "tree1.org"
+
+   (goto-char (point-min))
+
+   (let* ((table-buffer (org-transform-tree/org-table-buffer-from-outline)))
+     (with-current-buffer table-buffer
+       ;; Original table text
+       (let ((table-text (buffer-substring-no-properties (point-min) (point-max))))
+         (set-mark (point-max))
+         (goto-char (point-min))
+         (with-current-buffer
+             (org-transform-table/org-tree-buffer-from-org-table)
+           ;; as a tree
+           (set-mark (point-max))
+           (goto-char (point-min))
+           (with-current-buffer
+               ;; as a table
+               (org-transform-tree/org-table-buffer-from-outline)
+             (should
+              (string=
+               (buffer-substring-no-properties (point-min) (point-max))
+               table-text)
+              ))))
+       )
+     ))) 
 
 ;; Run tests at eval-buffer time
 (ert-run-tests-interactively "^ott-")
