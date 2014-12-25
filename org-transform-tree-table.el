@@ -293,8 +293,6 @@ editing."
          (title-row (car rows-cols))
          ;; All but the first item, which is the Heading title col
          (property-title-cols (cdr title-row))
-         ;; Reverse, to render the special cols first in the drawer
-         (reverse-property-title-cols (reverse property-title-cols))
          )
 
     (dolist (row-cols data-rows-cols)
@@ -306,15 +304,14 @@ editing."
         ;; Insert heading
         (insert (concat heading-col "\n"))
 
-        ;; Set properties
-        ;; Reverse to render special ones first
+        ;; Set properties for the heading
         (--zip-with
          (when (and other (not (string= other "")))
            ;;JPL: escape properties? or is that done by org-entry-put?
            (org-entry-put nil it other)
            )
-         reverse-property-title-cols
-         (reverse property-cols))
+         property-title-cols
+         property-cols)
 
         (outline-next-heading)
         )

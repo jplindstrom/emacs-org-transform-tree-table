@@ -1,19 +1,19 @@
 ** Second B
    :PROPERTIES:
-   :ABC_ALL:  ABC DEF GHI
-   :COLUMNS:  %30ITEM %20ABC %20DEF %GHI
-   :Property_b: Second B
    :Property_a: 1
+   :Property_b: Second B
+   :COLUMNS:  %30ITEM %20ABC %20DEF %GHI
+   :ABC_ALL:  ABC DEF GHI
    :END:
 *** B 1 - with \vert{} pipe
     :PROPERTIES:
-    :ABC_ALL:  ABC DEF GHI XYZ
-    :COLUMNS:  %30ITEM %20ABC %20DEF %GHI
     :Property_b: B1 with \vert{} pipe
+    :COLUMNS:  %30ITEM %20ABC %20DEF %GHI
+    :ABC_ALL:  ABC DEF GHI XYZ
     :END:
 **** B 1 First
      :PROPERTIES:
-     :ABC:      XYZ
      :Property_b: B 1 First
+     :ABC:      XYZ
      :END:
 *** B 2 - with, comma and 'a single quote'

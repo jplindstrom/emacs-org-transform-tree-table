@@ -2,51 +2,51 @@
 ** First A with property
 * Second
   :PROPERTIES:
-  :ABC_ALL:  1 2 3 "four five" six
-  :Property_a_ALL: %20ITEM %10Property_a %10Property_b %Property_c
+  :COLUMNS:  %20ITEM %10Property_a %10Property_b %Property_c
+  :Property_a_ALL: 1 2 3 "four five" six
   :END:
 ** Second A
    :PROPERTIES:
-   :ABC_ALL:  ABC "With space" "With, comma" "With | pipe"
-   :COLUMNS:  %20ITEM %20ABC %20DEF
-   :Property_b: ABC
    :Property_a: four five
+   :Property_b: ABC
+   :COLUMNS:  %20ITEM %20ABC %20DEF
+   :ABC_ALL:  ABC "With space" "With, comma" "With | pipe"
    :END:
 *** A 1
     :PROPERTIES:
-    :ABC_ALL:  Hello
-    :Property_a_ALL: With | pipe
+    :ABC:      With | pipe
+    :DEF:      Hello
     :END:
 *** A 2
     :PROPERTIES:
-    :ABC_ALL:  there
-    :Property_a_ALL: With, comma
+    :ABC:      With, comma
+    :DEF:      there
     :END:
 ** Second B
    :PROPERTIES:
-   :ABC_ALL:  ABC DEF GHI
-   :COLUMNS:  %30ITEM %20ABC %20DEF %GHI
-   :Property_b: Second B
    :Property_a: 1
+   :Property_b: Second B
+   :COLUMNS:  %30ITEM %20ABC %20DEF %GHI
+   :ABC_ALL:  ABC DEF GHI
    :END:
 *** B 1 - with | pipe
     :PROPERTIES:
-    :ABC_ALL:  ABC DEF GHI XYZ
-    :COLUMNS:  %30ITEM %20ABC %20DEF %GHI
     :Property_b: B1 with | pipe
+    :COLUMNS:  %30ITEM %20ABC %20DEF %GHI
+    :ABC_ALL:  ABC DEF GHI XYZ
     :END:
 **** B 1 First
      :PROPERTIES:
-     :ABC_ALL:  XYZ
-     :Property_a_ALL: B 1 First
+     :Property_b: B 1 First
+     :ABC:      XYZ
      :END:
 *** B 2 - with, comma and 'a single quote'
 ** Second C
 * Third - with "a double quote"
 ** "Third A with surroudning double quote"
    :PROPERTIES:
-   :ABC_ALL:  'outer quote'
-   :Property_a_ALL: "outer quotes"
-   :COLUMNS:  an 'inner quote
-   :outer_single_quote: an "inner" quote
+   :inner_double_quotes: an "inner" quote
+   :inner_single_quote: an 'inner quote
+   :outer_double_quotes: "outer quotes"
+   :outer_single_quote: 'outer quote'
    :END:
