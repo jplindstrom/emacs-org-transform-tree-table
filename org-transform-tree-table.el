@@ -40,6 +40,7 @@
 
 
 ;;; Usage
+;;  -----
 
 ;; ### From org tree to table
 
@@ -116,6 +117,7 @@
 
 
 ;;; Installation
+;;  ------------
 
 ;; Install org-transform-tree using MELPA.
 
@@ -129,10 +131,12 @@
 
 
 ;;; Changes
+;;  -------
 ;;
 ;; 2014-12-23 - 0.1.1
 ;;
 ;; * Initial release
+
 
 ;;; Code:
 
