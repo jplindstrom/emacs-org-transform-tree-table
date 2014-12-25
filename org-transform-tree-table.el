@@ -500,11 +500,23 @@ empty string for nil values."
 ;; Toggle subtree and table
 
 (defun ott/tree-table/replace-table-with-tree ()
-  ""
+  "Replace the current org-table with an org tree."
+  (let* (
+         (beg (org-table-begin))
+         (end (org-table-end))
+         (current-buffer (current-buffer))
+         (tree-buffer (org-transform-table/org-tree-buffer-from-org-table))
+         )
+    (switch-to-buffer current-buffer)
+    (delete-region beg end)
+    (insert (with-current-buffer tree-buffer (buffer-substring (point-min) (point-max))))
+    (goto-char beg)
+    (kill-buffer tree-buffer)
+    )
   )
 
 (defun ott/tree-table/replace-tree-with-table ()
-  ""
+  "Replace the current heading and its subtree with an org-table"
   (let* (
          (region (ott/org-subtree-region))
          (beg (car region))
