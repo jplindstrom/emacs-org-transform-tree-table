@@ -352,7 +352,7 @@ ORG-HEADING-COMPONENTS"
 PROPERTY-KEYS."
   (mapcar
    (lambda (key)
-     (alist-value (org-entry-properties nil 'standard key) key))
+     (assoc-default key (org-entry-properties nil 'standard key)))
    property-keys))
 
 (defun ott/org-tree/unique-propery-keys-in-buffer-order ()
