@@ -40,11 +40,13 @@
 
 ;; ## Usage
 
-;;     ;; To an org table
+;; ### From org tree to table
+
+;;     ;; Org outline to an org table
 ;;     M-x org-transform-tree/org-table-buffer-from-outline
 
-;;     ;; To CSV (or rather, tab-separated value)
-;;     M-x org-transform-tree/csv-buffer-from-outline
+;;     ;; Org outline to CSV (or rather, tab-separated value)
+;;     M-x org-transform-tree/csv-table-buffer-from-outline
 
 ;; If the region is active, convert that part of the
 ;; tree. Otherwise, if point is on an org heading, convert that
@@ -60,6 +62,18 @@
 ;; placed after all the user properties (i.e. whatever properties
 ;; the user has added to capture information).
 
+
+;; ### From table to org tree
+
+;;     ;; From an org table to an org outline
+;;     M-x org-transform-table/org-tree-buffer-from-org-table
+
+;;     ;; From CSV (tab separated) to an org outline
+;;     M-x org-transform-table/org-tree-buffer-from-csv
+
+;; When converting from an org table, point must be on a table.
+
+;; When converting CSV, convert the buffer.
 
 ;; ## Tiny example
 
@@ -91,16 +105,26 @@
 ;;     | *** Free Widget | All    |      |                           |
 ;;     | *** Paid Thingy | Paid   |   30 |                           |
 
-;;
-;; ## Installation:
+;; Note that the special property COLUMNS are out on the right, to be out
+;; of the way when the table is being edited in e.g. Excel or Open
+;; Office.
 
-;; Install using MELPA,
-;;
-;; or put in load-path and initialize with:
-;;
+;; This also means the transformation is only 99% round-trip safe and the
+;; first time you go back to a tree representation, you'll get more diffs
+;; than subsequent ones.
+
+
+;; ## Installation
+
+;; Install org-transform-tree using MELPA.
+
+;; Or clone the repo into somewhere in the load-path. 
+
+;;     git clone https://github.com/jplindstrom/emacs-org-transform-tree-table.git
+
+;; and initialize with:
+
 ;;    (require 'org-transform-tree-table)
-;;
-;;
 
 ;; ## Changes
 ;;
