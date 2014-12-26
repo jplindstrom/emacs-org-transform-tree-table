@@ -347,12 +347,54 @@ editing."
 (defun ott/org-tree/row-col-property-values (property-keys)
   "Return list of rows with a list of columns that are property
 values for the PROPERTY-KEYS for each tree heading."
-  (ott/org-tree/map-entries
-   (lambda ()
-     (cons
-      (ott/org-tree/level-and-heading (org-heading-components)) ; Heading
-      (ott/org-tree/current-property-values-from-keys property-keys)))
-   )
+  ;; There must be a simpler way to deal with the nested lists
+  (let* ((sets-rows-cols
+          (ott/org-tree/map-entries
+           (lambda ()
+             (let* ((heading-row
+                     (cons
+                      (ott/org-tree/level-and-heading (org-heading-components)) ; Heading
+                      (ott/org-tree/current-property-values-from-keys property-keys)
+                      ))
+                    (heading-text-rows (ott/org-tree/heading-text-rows property-keys))
+                    )
+               (cons heading-row heading-text-rows)
+               ))))
+         (rows-cols-with-nils (-flatten-n 1 sets-rows-cols))
+         (rows-cols
+          (-filter
+           (lambda (x) x)
+           rows-cols-with-nils
+           ))
+         )
+    rows-cols
+    )
+  )
+
+(defun ott/org-tree/heading-text-rows (property-keys)
+  "Return rows for each of the current heading text lines, with
+columns where the first column is the line text, and the
+rest (one for each in property-numbers) are empty strings."
+  (let* ((heading-text (ott/org-tree/heading-text))
+         (text-lines (org-split-string heading-text "\n"))
+         (rows-cols (mapcar
+                     (lambda (text-line)
+                       (cons text-line (mapcar (lambda (x) nil) property-keys)))
+                     text-lines
+                     ))
+         )
+    rows-cols
+    )
+  )
+
+(defun ott/org-tree/heading-text ()
+  ""
+  (org-end-of-meta-data-and-drawers)
+  (let* ((beg (point))
+         (end (save-excursion (outline-next-heading) (point)))
+         )
+    (buffer-substring-no-properties beg end)
+    )
   )
 
 (defun ott/org-tree/active-scope ()
