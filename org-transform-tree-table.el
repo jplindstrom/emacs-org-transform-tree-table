@@ -145,6 +145,12 @@
 ;; * Initial release
 
 
+;;; Contributors
+;; ------------
+;;
+;; * Syohei YOSHIDA - https://github.com/syohex
+
+
 ;;; Code:
 
 
