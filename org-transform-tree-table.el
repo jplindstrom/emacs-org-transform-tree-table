@@ -427,9 +427,9 @@ If there isn't an org-table at point, raise an error."
          (rows-cols
           (mapcar
            (lambda (line)
-             ;;JPL: unescape e.g. \vert
-             (org-split-string (org-trim line) "\\s-*|\\s-*")
-             )
+             (mapcar
+              'ott/org-table/unescape-value
+              (org-split-string (org-trim line) "\\s-*|\\s-*")))
            lines))
          )
     rows-cols))
@@ -457,6 +457,15 @@ If there isn't an org-table at point, raise an error."
 empty string for nil values."
   (if value
       (replace-regexp-in-string "|" "\\\\vert{}" value)
+    ""))
+
+(defun ott/org-table/unescape-value (value)
+  "Return VALUE but suitable to use outside of a table value. Return an
+empty string for nil values."
+  (if value
+      (replace-regexp-in-string "\\\\vert\\b" "|"
+       (replace-regexp-in-string "\\\\vert{}" "|"
+        value))
     ""))
 
 
