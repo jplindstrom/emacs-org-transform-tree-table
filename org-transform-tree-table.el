@@ -121,7 +121,7 @@
 
 ;; Install org-transform-tree-table using MELPA.
 
-;; Or clone the repo into somewhere in the load-path. 
+;; Or clone the repo into somewhere in the load-path.
 
 ;;     git clone https://github.com/jplindstrom/emacs-org-transform-tree-table.git
 
@@ -305,7 +305,7 @@ editing."
 
 (defun ott/org-tree/render-rows-cols (rows-cols)
   "Insert an org-tree with the ROWS-COLS."
-  (erase-buffer) ;; JPL: remove later
+  (erase-buffer)
   (org-mode)
   (let* (
          (data-rows-cols (cdr rows-cols))
@@ -326,7 +326,6 @@ editing."
         ;; Set properties for the heading
         (--zip-with
          (when (and other (not (string= other "")))
-           ;;JPL: escape properties? or is that done by org-entry-put?
            (org-entry-put nil it other)
            )
          property-title-cols
@@ -436,7 +435,7 @@ If there isn't an org-table at point, raise an error."
 
 (defun ott/org-table/render-rows-cols (rows-cols)
   "Insert an org-table with the ROWS-COLS."
-    (erase-buffer) ;; JPL: remove later
+    (erase-buffer)
     (org-mode)
     (--each rows-cols
       (ott/org-table/insert-values-as-table-row it))
@@ -491,7 +490,7 @@ If there isn't an org-table at point, raise an error."
 
 (defun ott/csv-table/render-rows-cols (rows-cols)
   "Insert a CSV table with the ROWS-COLS."
-    (erase-buffer) ;; JPL: remove later
+    (erase-buffer)
     (--each rows-cols
       (ott/csv-table/insert-values-as-table-row it))
   )
