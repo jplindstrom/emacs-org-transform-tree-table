@@ -4,7 +4,7 @@
 ;;
 ;; Author: Johan Lindstrom <buzzwordninja not_this_bit@googlemail.com>
 ;; URL: https://github.com/jplindstrom/emacs-org-transform-tree-table
-;; Version: 0.1.0
+;; Version: 0.1.2
 ;; Package-Requires: ((dash "2.10.0") (s "1.3.0"))
 ;; Keywords: org-mode table org-table tree csv convert
 
@@ -36,7 +36,7 @@
 ;; More about column view:
 
 ;; * http://orgmode.org/worg/org-tutorials/org-column-view-tutorial.html
-;; * http://orgmode.org/worg/org-tutorials/org-column-view-tutorial.html
+;; * http://orgmode.org/manual/Column-view.html
 
 
 ;;; Usage
@@ -119,9 +119,9 @@
 ;;; Installation
 ;;  ------------
 
-;; Install org-transform-tree using MELPA.
+;; Install org-transform-tree-table using MELPA.
 
-;; Or clone the repo into somewhere in the load-path. 
+;; Or clone the repo into somewhere in the load-path.
 
 ;;     git clone https://github.com/jplindstrom/emacs-org-transform-tree-table.git
 
@@ -132,6 +132,12 @@
 
 ;;; Changes
 ;;  -------
+;;
+;; 2014-12-26 - 0.1.2
+;;
+;; * Bug fixes, doc fixes
+;; * Toggle between tree and table
+;;
 ;;
 ;; 2014-12-23 - 0.1.1
 ;;
@@ -227,6 +233,19 @@ return a new buffer with the new tree."
    'ott/org-tree/render-rows-cols)
   )
 
+;;;###autoload
+(defun org-transform-tree-table/toggle ()
+  "Toggle between an outline subtree and an org-table, depending
+on what point is placed on."
+  (interactive)
+  (if (org-at-table-p)
+      (ott/tree-table/replace-table-with-tree)
+    (if (org-at-heading-p)
+      (ott/tree-table/replace-tree-with-table)
+      (error "Point isn't on an org heading or in an org table.")
+      ))
+  )
+
 
 
 ;; Main
@@ -236,8 +255,8 @@ return a new buffer with the new tree."
 buffer with the table. Name the new buffer after the current
 buffer file name and TYPE."
   (let* ((target-buffer
-          (get-buffer-create (concat (buffer-name) type)) ;; Use the other one later
-          ;; (create-file-buffer (concat (or (buffer-file-name) "new") type))
+          ;; (get-buffer-create (concat (buffer-name) type)) ;; Use the other one later
+          (create-file-buffer (concat (or (buffer-file-name) "new") type))
           ))
     (with-current-buffer target-buffer
       (funcall render-fun rows-cols))
@@ -286,7 +305,7 @@ editing."
 
 (defun ott/org-tree/render-rows-cols (rows-cols)
   "Insert an org-tree with the ROWS-COLS."
-  (erase-buffer) ;; JPL: remove later
+  (erase-buffer)
   (org-mode)
   (let* (
          (data-rows-cols (cdr rows-cols))
@@ -307,7 +326,6 @@ editing."
         ;; Set properties for the heading
         (--zip-with
          (when (and other (not (string= other "")))
-           ;;JPL: escape properties? or is that done by org-entry-put?
            (org-entry-put nil it other)
            )
          property-title-cols
@@ -408,16 +426,18 @@ If there isn't an org-table at point, raise an error."
          (rows-cols
           (mapcar
            (lambda (line)
-             ;;JPL: unescape e.g. \vert
-             (org-split-string (org-trim line) "\\s-*|\\s-*")
-             )
-           lines))
+             (mapcar
+              'ott/org-table/unescape-value
+              (org-split-string (org-trim line) "\\s-*|\\s-*")))
+           (--filter
+            (not (string-match org-table-hline-regexp it))
+            lines)))
          )
     rows-cols))
 
 (defun ott/org-table/render-rows-cols (rows-cols)
   "Insert an org-table with the ROWS-COLS."
-    (erase-buffer) ;; JPL: remove later
+    (erase-buffer)
     (org-mode)
     (--each rows-cols
       (ott/org-table/insert-values-as-table-row it))
@@ -438,6 +458,15 @@ If there isn't an org-table at point, raise an error."
 empty string for nil values."
   (if value
       (replace-regexp-in-string "|" "\\\\vert{}" value)
+    ""))
+
+(defun ott/org-table/unescape-value (value)
+  "Return VALUE but suitable to use outside of a table value. Return an
+empty string for nil values."
+  (if value
+      (replace-regexp-in-string "\\\\vert\\b" "|"
+       (replace-regexp-in-string "\\\\vert{}" "|"
+        value))
     ""))
 
 
@@ -463,7 +492,7 @@ If there isn't an org-table at point, raise an error."
 
 (defun ott/csv-table/render-rows-cols (rows-cols)
   "Insert a CSV table with the ROWS-COLS."
-    (erase-buffer) ;; JPL: remove later
+    (erase-buffer)
     (--each rows-cols
       (ott/csv-table/insert-values-as-table-row it))
   )
@@ -482,6 +511,54 @@ empty string for nil values."
       value
     ""))
 
+
+
+;; Toggle subtree and table
+
+(defun ott/tree-table/replace-table-with-tree ()
+  "Replace the current org-table with an org tree."
+  (let* (
+         (beg (org-table-begin))
+         (end (org-table-end))
+         (current-buffer (current-buffer))
+         (tree-buffer (org-transform-table/org-tree-buffer-from-org-table))
+         )
+    (switch-to-buffer current-buffer)
+    (delete-region beg end)
+    (insert (with-current-buffer tree-buffer (buffer-substring (point-min) (point-max))))
+    (goto-char beg)
+    (kill-buffer tree-buffer)
+    )
+  )
+
+(defun ott/tree-table/replace-tree-with-table ()
+  "Replace the current heading and its subtree with an org-table"
+  (let* (
+         (region (ott/org-subtree-region))
+         (beg (car region))
+         (end (cdr region))
+         (current-buffer (current-buffer))
+         (table-buffer (org-transform-tree/org-table-buffer-from-outline))
+         )
+    (switch-to-buffer current-buffer)
+    (delete-region beg end)
+    (insert (with-current-buffer table-buffer (buffer-substring (point-min) (- (point-max) 1))))
+    (goto-char beg)
+    (kill-buffer table-buffer)
+    )
+  )
+
+(defun ott/org-subtree-region ()
+  "Return cons with (beg . end) of the current subtree"
+  (interactive)
+  (save-excursion
+    (save-match-data
+      (org-with-limited-levels
+       (cons
+        (progn (org-back-to-heading t) (point))
+        (progn (org-end-of-subtree t t)
+               (if (and (org-at-heading-p) (not (eobp))) (backward-char 1))
+               (point)))))))
 
 
 

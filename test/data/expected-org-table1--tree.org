@@ -5,9 +5,9 @@
    :COLUMNS:  %30ITEM %20ABC %20DEF %GHI
    :ABC_ALL:  ABC DEF GHI
    :END:
-*** B 1 - with \vert{} pipe
+*** B 1 - with | pipe
     :PROPERTIES:
-    :Property_b: B1 with \vert{} pipe
+    :Property_b: B1 with | pipe
     :COLUMNS:  %30ITEM %20ABC %20DEF %GHI
     :ABC_ALL:  ABC DEF GHI XYZ
     :END:

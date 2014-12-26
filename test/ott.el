@@ -42,6 +42,31 @@
      ,@body))
 
 
+
+(ert-deftest ott--org-table--unescape ()
+  (should ;; nil to empty string
+   (string= (ott/org-table/unescape-value nil) ""))
+
+  (should ;; Normal, unescaped
+   (string= (ott/org-table/unescape-value "Hello there") "Hello there"))
+
+  (should ;; Normal, multiple times
+   (string=
+    (ott/org-table/unescape-value "A pipe: \\vert{}, and again \\vert{}")
+    "A pipe: |, and again |"
+    ))
+
+  (should ;; Without {}
+   (string=
+    (ott/org-table/unescape-value "A normal \\vert, and more \\vert here and at end \\vert")
+    "A normal |, and more | here and at end |"))
+
+  (should ;; Without {}, as part of longer word
+   (string=
+    (ott/org-table/unescape-value "As part of word \\vertical")
+    "As part of word \\vertical"))
+)
+
 (ert-deftest ott--transform-tree-to-org-table--buffer ()
   "Check that on org-mode buffer transforms ok to an org-table"
 
