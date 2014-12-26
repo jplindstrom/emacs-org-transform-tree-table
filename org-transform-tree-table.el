@@ -255,8 +255,8 @@ on what point is placed on."
 buffer with the table. Name the new buffer after the current
 buffer file name and TYPE."
   (let* ((target-buffer
-          (get-buffer-create (concat (buffer-name) type)) ;; Use the other one later
-          ;; (create-file-buffer (concat (or (buffer-file-name) "new") type))
+          ;; (get-buffer-create (concat (buffer-name) type)) ;; Use the other one later
+          (create-file-buffer (concat (or (buffer-file-name) "new") type))
           ))
     (with-current-buffer target-buffer
       (funcall render-fun rows-cols))
