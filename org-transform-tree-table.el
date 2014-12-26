@@ -40,7 +40,7 @@
 
 
 ;;; Usage
-;;  -----
+;; -----
 
 ;; ### From org tree to table
 
@@ -77,7 +77,8 @@
 
 ;; When converting CSV, convert the buffer.
 
-;; ## Tiny example
+;; Tiny example
+;; ------------
 
 ;; This outline:
 
@@ -117,7 +118,7 @@
 
 
 ;;; Installation
-;;  ------------
+;; ------------
 
 ;; Install org-transform-tree-table using MELPA.
 
@@ -131,7 +132,7 @@
 
 
 ;;; Changes
-;;  -------
+;; -------
 ;;
 ;; 2014-12-26 - 0.1.2
 ;;
