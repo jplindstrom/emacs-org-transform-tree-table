@@ -429,7 +429,9 @@ If there isn't an org-table at point, raise an error."
              (mapcar
               'ott/org-table/unescape-value
               (org-split-string (org-trim line) "\\s-*|\\s-*")))
-           lines))
+           (--filter
+            (not (string-match org-table-hline-regexp it))
+            lines)))
          )
     rows-cols))
 
