@@ -13,7 +13,7 @@ Then you can transform the outline to a table to share with others
 More about column view:
 
 * http://orgmode.org/worg/org-tutorials/org-column-view-tutorial.html
-* http://orgmode.org/worg/org-tutorials/org-column-view-tutorial.html
+* http://orgmode.org/manual/Column-view.html
 
 
 ## Usage

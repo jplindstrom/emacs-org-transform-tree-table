@@ -36,7 +36,7 @@
 ;; More about column view:
 
 ;; * http://orgmode.org/worg/org-tutorials/org-column-view-tutorial.html
-;; * http://orgmode.org/worg/org-tutorials/org-column-view-tutorial.html
+;; * http://orgmode.org/manual/Column-view.html
 
 
 ;;; Usage
