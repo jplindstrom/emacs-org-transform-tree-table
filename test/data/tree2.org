@@ -1,0 +1,20 @@
+* First
+** First A with property
+
+   Blank line before
+   and after
+
+* Second
+  :PROPERTIES:
+  :COLUMNS:  %20ITEM %10Property_a %10Property_b %Property_c
+  :Property_a_ALL: 1 2 3 "four five" six
+  :END:
+This makes it possible to have an outline with properties and work with it in column view. Then you can transform the outline
+to a table to share with others (export to CSV and open in Excel).
+
+  - with a list, which is indented
+  - and another
+    - sub-item
+** Second C
+   One level of indentation
+* Third
