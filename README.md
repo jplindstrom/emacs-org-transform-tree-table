@@ -94,7 +94,7 @@ than subsequent ones.
 
 ## Installation
 
-Install org-transform-tree using MELPA.
+Install org-transform-tree-table using MELPA.
 
 Or clone the repo into somewhere in the load-path. 
 
