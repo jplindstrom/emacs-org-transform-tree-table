@@ -64,6 +64,11 @@
 ;; placed after all the user properties (i.e. whatever properties
 ;; the user has added to capture information).
 
+;; Special values that can't be represented in an org table are escaped:
+
+;;     |                   ==> \vert{}
+;;     first leading space ==> non-breaking space (C-x 8 SPC)
+
 
 ;; ### From table to org tree
 
@@ -76,6 +81,10 @@
 ;; When converting from an org table, point must be on a table.
 
 ;; When converting CSV, convert the buffer.
+
+;; Values escaped from any tree->table transformation are unescaped (see above)
+
+
 
 ;; Tiny example
 ;; ------------
@@ -133,6 +142,11 @@
 
 ;;; Changes
 ;; -------
+;;
+;; 2014-12-28 - 0.1.3
+;;
+;; * Transform text below headings
+;;
 ;;
 ;; 2014-12-26 - 0.1.2
 ;;
@@ -262,8 +276,8 @@ on what point is placed on."
 buffer with the table. Name the new buffer after the current
 buffer file name and TYPE."
   (let* ((target-buffer
-          ;; (get-buffer-create (concat (buffer-name) type)) ;; Use the other one later
-          (create-file-buffer (concat (or (buffer-file-name) "new") type))
+          (get-buffer-create (concat (buffer-name) type)) ;; Use the other one later
+          ;; (create-file-buffer (concat (or (buffer-file-name) "new") type))
           ))
     (with-current-buffer target-buffer
       (funcall render-fun rows-cols))
@@ -347,12 +361,64 @@ editing."
 (defun ott/org-tree/row-col-property-values (property-keys)
   "Return list of rows with a list of columns that are property
 values for the PROPERTY-KEYS for each tree heading."
-  (ott/org-tree/map-entries
-   (lambda ()
-     (cons
-      (ott/org-tree/level-and-heading (org-heading-components)) ; Heading
-      (ott/org-tree/current-property-values-from-keys property-keys)))
-   )
+  ;; There must be a simpler way to deal with the nested lists
+  (let* ((sets-rows-cols
+          (ott/org-tree/map-entries
+           (lambda ()
+             ;;;JPL: refactor
+             (let* ((heading-row
+                     (cons
+                      (ott/org-tree/level-and-heading (org-heading-components)) ; Heading
+                      (ott/org-tree/current-property-values-from-keys property-keys)
+                      ))
+                    (heading-text-rows (ott/org-tree/heading-text-rows property-keys))
+                    )
+               (cons heading-row heading-text-rows)
+               ))))
+         (rows-cols-with-nils (-flatten-n 1 sets-rows-cols))
+         (rows-cols
+          (-filter
+           (lambda (x) x)
+           rows-cols-with-nils
+           ))
+         )
+    rows-cols
+    )
+  )
+
+(defun ott/org-tree/heading-text-rows (property-keys)
+  "Return rows for each of the current heading text lines, with
+columns where the first column is the line text, and the
+rest (one for each in property-numbers) are empty strings."
+  (let* ((heading-text (ott/org-tree/heading-text))
+         (text-lines (org-split-string heading-text "\n"))
+         (rows-cols
+          (mapcar
+           (lambda (text-line)
+             (cons text-line (mapcar (lambda (x) nil) property-keys)))
+           text-lines
+           ))
+         )
+    rows-cols
+    )
+  )
+
+(defun ott/org-tree/heading-text ()
+  "Return the text contents of the current heading (the text
+beneath the '* Heading' itself), or '' if there isn't one."
+  (org-end-of-meta-data-and-drawers)
+  ;; include leading empty lines
+  (while (looking-back "[\n ]+\n")
+    (backward-char)
+    (beginning-of-line))
+
+  (let* ((beg (point))
+         (end (if (org-at-heading-p)
+                  (point)
+                  (save-excursion (outline-next-heading) (point))))
+         )
+    (buffer-substring-no-properties beg end)
+    )
   )
 
 (defun ott/org-tree/active-scope ()
@@ -464,16 +530,21 @@ If there isn't an org-table at point, raise an error."
   "Return VALUE but suitable to put in a table value. Return an
 empty string for nil values."
   (if value
-      (replace-regexp-in-string "|" "\\\\vert{}" value)
+      (replace-regexp-in-string "^ " " " ;; leading space to non-breaking-space
+       (replace-regexp-in-string "|" "\\\\vert{}" value))
     ""))
 
 (defun ott/org-table/unescape-value (value)
   "Return VALUE but suitable to use outside of a table value. Return an
 empty string for nil values."
   (if value
-      (replace-regexp-in-string "\\\\vert\\b" "|"
-       (replace-regexp-in-string "\\\\vert{}" "|"
-        value))
+      (replace-regexp-in-string
+       "\\\\vert\\b" "|"
+       (replace-regexp-in-string
+        "\\\\vert{}" "|"
+        (replace-regexp-in-string
+         "^ " " " ;; Leading non-breaking-space to space
+         value)))
     ""))
 
 
