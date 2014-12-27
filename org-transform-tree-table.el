@@ -406,8 +406,12 @@ rest (one for each in property-numbers) are empty strings."
 (defun ott/org-tree/heading-text ()
   "Return the text contents of the current heading (the text
 beneath the '* Heading' itself), or '' if there isn't one."
-  ;;;JPL: go back while empty lines
   (org-end-of-meta-data-and-drawers)
+  ;; include leading empty lines
+  (while (looking-back "[\n ]+\n")
+    (backward-char)
+    (beginning-of-line))
+
   (let* ((beg (point))
          (end (if (org-at-heading-p)
                   (point)

@@ -90,8 +90,8 @@
    (search-forward "First A with property")
    (ott-should-string=
     (ott/org-tree/heading-text)
-    ;;JPL: fix after dealing with leading blank lines
-    "   Blank line before
+    "
+   Blank line before
    and after
 
 "
