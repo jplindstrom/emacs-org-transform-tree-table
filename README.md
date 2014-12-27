@@ -40,6 +40,11 @@ However, all special properties (e.g. 'COLUMNS', '*_ALL') are
 placed after all the user properties (i.e. whatever properties
 the user has added to capture information).
 
+Special values that can't be represented in an org table are escaped:
+
+    |                   ==> \vert{}
+    first leading space ==> non-breaking space (C-x 8 SPC)
+
 
 ### From table to org tree
 
@@ -52,6 +57,10 @@ the user has added to capture information).
 When converting from an org table, point must be on a table.
 
 When converting CSV, convert the buffer.
+
+Values escaped from any tree->table transformation are unescaped (see above)
+
+
 
 ## Tiny example
 
