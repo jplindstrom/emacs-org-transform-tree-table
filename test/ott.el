@@ -42,6 +42,17 @@
      ,@body))
 
 
+(defun ott-should-string= (got expected &rest description)
+  (when description (message "%s" description))
+  (or
+   (string= got expected)
+   (message "string= failed: got (\n%s\n), but expected (\n%s\n)" got expected))
+
+  (should ;; nil to empty string
+   (string= got expected )
+   )
+  )
+
 
 (ert-deftest ott--org-table--unescape ()
   (should ;; nil to empty string
@@ -82,10 +93,10 @@
        (org-transform-tree/org-table-buffer-from-outline)
      ;;;; Test
      ;; Extraction did the right thing
-     (should
-      (string=
-       (buffer-substring-no-properties (point-min) (point-max))
-       (ott-data-file-string "expected-tree1-buffer--table.org")))
+     (ott-should-string=
+      (buffer-substring-no-properties (point-min) (point-max))
+      (ott-data-file-string "expected-tree1-buffer--table.org")
+      "Transformed text from expected-tree1-buffer--table.or gmatches")
      )
    )
   )
