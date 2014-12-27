@@ -143,6 +143,11 @@
 ;;; Changes
 ;; -------
 ;;
+;; 2014-12-28 - 0.1.3
+;;
+;; * Transform text below headings
+;;
+;;
 ;; 2014-12-26 - 0.1.2
 ;;
 ;; * Bug fixes, doc fixes
@@ -271,8 +276,8 @@ on what point is placed on."
 buffer with the table. Name the new buffer after the current
 buffer file name and TYPE."
   (let* ((target-buffer
-          ;; (get-buffer-create (concat (buffer-name) type)) ;; Use the other one later
-          (create-file-buffer (concat (or (buffer-file-name) "new") type))
+          (get-buffer-create (concat (buffer-name) type)) ;; Use the other one later
+          ;; (create-file-buffer (concat (or (buffer-file-name) "new") type))
           ))
     (with-current-buffer target-buffer
       (funcall render-fun rows-cols))
@@ -404,7 +409,9 @@ beneath the '* Heading' itself), or '' if there isn't one."
   ;;;JPL: go back while empty lines
   (org-end-of-meta-data-and-drawers)
   (let* ((beg (point))
-         (end (save-excursion (outline-next-heading) (point)))
+         (end (if (org-at-heading-p)
+                  (point)
+                  (save-excursion (outline-next-heading) (point))))
          )
     (buffer-substring-no-properties beg end)
     )
