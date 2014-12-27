@@ -78,6 +78,56 @@
     "As part of word \\vertical"))
 )
 
+(ert-deftest ott--org-tree--heading-text ()
+  "Correct heading-text"
+
+  ;;;; Setup
+  (with-ott-org-file
+   "tree2.org"
+
+
+   (goto-char (point-min))
+   (search-forward "First A with property")
+   (ott-should-string=
+    (ott/org-tree/heading-text)
+    "
+   Blank line before
+   and after
+
+"
+    "Blank lines")
+
+
+   (goto-char (point-min))
+   (search-forward "Second")
+   (ott-should-string=
+    (ott/org-tree/heading-text)
+    "This makes it possible to have an outline with properties and work with it in column view. Then you can transform the outline
+to a table to share with others (export to CSV and open in Excel).
+
+  - with a list, which is indented
+  - and another
+    - sub-item
+"
+    "With a drawer")
+
+
+   (goto-char (point-min))
+   (ott-should-string=
+    (ott/org-tree/heading-text)
+    ""
+    "No text")
+
+   (search-forward "Second C")
+   (ott-should-string=
+    (ott/org-tree/heading-text)
+    "   One level of indentation
+"
+    "Indented text")
+
+   )
+  )
+
 (ert-deftest ott--transform-tree-to-org-table--buffer ()
   "Check that on org-mode buffer transforms ok to an org-table"
 
@@ -96,7 +146,7 @@
      (ott-should-string=
       (buffer-substring-no-properties (point-min) (point-max))
       (ott-data-file-string "expected-tree1-buffer--table.org")
-      "Transformed text from expected-tree1-buffer--table.or gmatches")
+      "Transformed text from expected-tree1-buffer--table.org matches")
      )
    )
   )
@@ -203,12 +253,13 @@
    )
   )
 
-(ert-deftest ott--transform-tree-to-org-table--roundtrip ()
-  "Check that a roundtrip tree->table then ->tree->table is identical"
+(defun ott--transform-tree-to-org-table--test-roundtrip (file)
+  "Check that a roundtrip of FILE tree->table then ->tree->table
+is identical"
 
   ;;;; Setup
   (with-ott-org-file
-   "tree1.org"
+   file
 
    (goto-char (point-min))
 
@@ -232,9 +283,23 @@
                table-text)
               ))))
        )
-     ))) 
+     )))
+
+(ert-deftest ott--transform-tree-to-org-table--roundtrip ()
+  "Check that a roundtrip tree->table then ->tree->table is identical"
+
+  ;; Simple file
+  (ott--transform-tree-to-org-table--test-roundtrip "tree1.org")
+
+  ;; with heading text, indentation
+  (ott--transform-tree-to-org-table--test-roundtrip "tree2.org")
+
+  )
+
+
 
 ;; Run tests at eval-buffer time
 (ert-run-tests-interactively "^ott-")
+;; (ert-run-tests-interactively "^ott--org-tree--heading-text")
 
 ;;; test/ert.el ends here
