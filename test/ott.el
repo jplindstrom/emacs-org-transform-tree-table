@@ -253,12 +253,13 @@ to a table to share with others (export to CSV and open in Excel).
    )
   )
 
-(ert-deftest ott--transform-tree-to-org-table--roundtrip ()
-  "Check that a roundtrip tree->table then ->tree->table is identical"
+(defun ott--transform-tree-to-org-table--test-roundtrip (file)
+  "Check that a roundtrip of FILE tree->table then ->tree->table
+is identical"
 
   ;;;; Setup
   (with-ott-org-file
-   "tree1.org"
+   file
 
    (goto-char (point-min))
 
@@ -283,6 +284,19 @@ to a table to share with others (export to CSV and open in Excel).
               ))))
        )
      )))
+
+(ert-deftest ott--transform-tree-to-org-table--roundtrip ()
+  "Check that a roundtrip tree->table then ->tree->table is identical"
+
+  ;; Simple file
+  (ott--transform-tree-to-org-table--test-roundtrip "tree1.org")
+
+  ;; with heading text, indentation
+  (ott--transform-tree-to-org-table--test-roundtrip "tree2.org")
+
+  )
+
+
 
 ;; Run tests at eval-buffer time
 (ert-run-tests-interactively "^ott-")
