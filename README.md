@@ -16,9 +16,14 @@ More about column view:
 * http://orgmode.org/manual/Column-view.html
 
 
+More about Excel:
+
+* People who aren't Emacs users tend to use it a lot.
+
+
 ## Usage
 
-### From org tree to table
+### From org tree, to table
 
     ;; Org outline to an org table
     M-x org-transform-tree/org-table-buffer-from-outline
@@ -40,13 +45,16 @@ However, all special properties (e.g. 'COLUMNS', '*_ALL') are
 placed after all the user properties (i.e. whatever properties
 the user has added to capture information).
 
+Text content under a heading is also transformed and put in the first
+column.
+
 Special values that can't be represented in an org table are escaped:
 
     |                   ==> \vert{}
     first leading space ==> non-breaking space (C-x 8 SPC)
 
 
-### From table to org tree
+### From table, to org tree
 
     ;; From an org table to an org outline
     M-x org-transform-table/org-tree-buffer-from-org-table
@@ -58,7 +66,8 @@ When converting from an org table, point must be on a table.
 
 When converting CSV, convert the buffer.
 
-Values escaped from any tree->table transformation are unescaped (see above)
+Values escaped from any tree->table transformation are unescaped (see
+above).
 
 
 
@@ -68,44 +77,83 @@ This outline:
 
     * Pages
       :PROPERTIES:
-      :COLUMNS:  %30ITEM %10Access %10Cost
+      :COLUMNS:  %30ITEM %10Login %10Access %10Cost
       :END:
+    ** About
+       :PROPERTIES:
+       :Login:    No
+       :Access:   All
+       :END:
     ** Products
        :PROPERTIES:
+       :COLUMNS: %30ITEM %10Color
        :Access:   All
+       :Login:    No
        :END:
     *** Free Widget
         :PROPERTIES:
         :Access:   All
+        :Login:    Yes
+        :Color:    Green
         :END:
+
+        This one is:
+        - Awesome
+        - Green
     *** Paid Thingy
         :PROPERTIES:
         :Access:   Paid
         :Cost:     30
+        :Login:    Yes
+        :Color:    Blue
         :END:
 
 Transforms into:
 
-    | Heading         | Access | Cost | COLUMNS                   |
-    | * Pages         |        |      | %30ITEM %10Access %10Cost |
-    | ** Products     | All    |      |                           |
-    | *** Free Widget | All    |      |                           |
-    | *** Paid Thingy | Paid   |   30 |                           |
+    | Heading          | Login | Access | Color | Cost | COLUMNS                            |
+    | * Pages          |       |        |       |      | %30ITEM %10Login %10Access %10Cost |
+    | ** About         | No    | All    |       |      |                                    |
+    | ** Products      | No    | All    |       |      | %30ITEM %10Color                   |
+    | *** Free Widget  | Yes   | All    | Green |      |                                    |
+    |     This one is: |       |        |       |      |                                    |
+    |     - Awesome    |       |        |       |      |                                    |
+    |     - Green      |       |        |       |      |                                    |
+    | *** Paid Thingy  | Yes   | Paid   | Blue  |   30 |                                    |
 
-Note that the special property COLUMNS are out on the right, to be out
-of the way when the table is being edited in e.g. Excel or Open
-Office.
+Note that:
 
-This also means the transformation is only 99% round-trip safe and the
-first time you go back to a tree representation, you'll get more diffs
-than subsequent ones.
+* The special property COLUMNS are out on the right, to be out of the
+  way when the table is being edited in e.g. Excel or Open Office.
+
+* The transformation is only 99% round-trip safe since there might be
+  some reordering of properties taking place.
+
+* It's possible to have many COLUMNS declarations for different parts
+  of the tree. Some of them might be repeated at a lower level. Useful
+  techniques to keep them in sync:
+  * Multiple cursors
+  * M-x iedit
+  * Search and replace
+
+* Each line of text under a heading turns into a row.
+
+* The indentation / whitespace in the text has a leading
+  non-breaking-space to keep the layout inside the table.
+
+* The outline can also be written to a tab-separated value buffer,
+  which can be opened in e.g. Excel.
 
 
 ## Installation
 
-Install org-transform-tree-table using MELPA.
+### MELPA
 
-Or clone the repo into somewhere in the load-path. 
+Install org-transform-tree-table using MELPA like any other module.
+
+
+### Manually
+
+Clone the repo into somewhere in the load-path.
 
     git clone https://github.com/jplindstrom/emacs-org-transform-tree-table.git
 
@@ -114,87 +162,3 @@ and initialize with:
    (require 'org-transform-tree-table)
 
 
-
-## Larger Example
-
-Let's say you have an outline like this.
-
-    * Pages
-    ** About
-    ** Products
-    *** Free Gizmo
-    *** Free Widget
-    *** Paid Thingy
-    ** Courses
-    *** Introduction
-    *** Advanced
-    *** Super Advanced
-
-with the two columns defined under "* Pages"
-
-  :COLUMNS:  %30ITEM %10Access %10Cost
-
-And some property values set on various headings:
-
-    * Pages
-      :PROPERTIES:
-      :COLUMNS:  %30ITEM %10Access %10Cost
-      :Access_ALL: All Paid
-      :END:
-    ** About
-       :PROPERTIES:
-       :Access:   All
-       :END:
-    ** Products
-       :PROPERTIES:
-       :Access:   All
-       :END:
-    *** Free Gizmo
-        :PROPERTIES:
-        :Access:   All
-        :END:
-    *** Free Widget
-        :PROPERTIES:
-        :Access:   All
-        :END:
-    *** Paid Thingy
-        :PROPERTIES:
-        :Access:   Paid
-        :Cost:     30
-        :END:
-    ** Courses
-       :PROPERTIES:
-       :Access:   All
-       :END:
-    *** Introduction
-        :PROPERTIES:
-        :Access:   All
-        :END:
-    *** Advanced
-        :PROPERTIES:
-        :Access:   Paid
-        :Cost:     10
-        :END:
-    *** Super Advanced
-        :PROPERTIES:
-        :Access:   Paid
-        :Cost:     100
-        :END:
-
-
-This outline transformed to an org-table looks like this:
-
-    | Heading            | Access | Cost | COLUMNS                   | Access_ALL |
-    | * Pages            |        |      | %30ITEM %10Access %10Cost | All Paid   |
-    | ** About           | All    |      |                           |            |
-    | ** Products        | All    |      |                           |            |
-    | *** Free Gizmo     | All    |      |                           |            |
-    | *** Free Widget    | All    |      |                           |            |
-    | *** Paid Thingy    | Paid   |   30 |                           |            |
-    | ** Courses         | All    |      |                           |            |
-    | *** Introduction   | All    |      |                           |            |
-    | *** Advanced       | Paid   |   10 |                           |            |
-    | *** Super Advanced | Paid   |  100 |                           |            |
-
-It can also be written to a tab-separated value buffer, which can be
-opened in e.g. Excel.
