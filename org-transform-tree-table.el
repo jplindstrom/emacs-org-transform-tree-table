@@ -4,8 +4,8 @@
 ;;
 ;; Author: Johan Lindstrom <buzzwordninja not_this_bit@googlemail.com>
 ;; URL: https://github.com/jplindstrom/emacs-org-transform-tree-table
-;; Version: 0.1.2
-;; Package-Requires: ((dash "2.10.0") (s "1.3.0"))
+;; Version: 0.2.0
+;; Package-Requires: ((dash "2.10.0") (s "1.3.0") (pcsv "1.3.5"))
 ;; Keywords: org-mode table org-table tree csv convert
 
 ;; This program is free software: you can redistribute it and/or modify
@@ -172,6 +172,10 @@
 (require 'dash)
 (require 's)
 
+(require 'pcsv)
+
+
+;; Var for separator
 
 
 ;; interactive defuns
@@ -342,6 +346,7 @@ editing."
              )
 
         ;; Insert heading
+        (message "JPL: heading <<%s>>" (prin1-to-string heading-col))
         (insert (concat heading-col "\n"))
 
         ;; Set properties for the heading
@@ -552,21 +557,29 @@ empty string for nil values."
 ;; Render/parse CSV table (tab separated)
 
 (defun ott/csv-table/parse-rows-cols ()
-  "Parse the buffer CSV table (tab separated) and return a list
-of rows with a list of cols.
+  "Parse the buffer as a CSV table (tab separated) and return a
+list of rows with a list of cols."
+  (let ((pcsv-separator ?\t))
+    (pcsv-parse-buffer)
+    )
+  )
 
-If there isn't an org-table at point, raise an error."
-  (let* (
-         (table-text (buffer-substring-no-properties (point-min) (point-max)))
-         (lines (org-split-string table-text "\n"))
-         (rows-cols
-          (mapcar
-           (lambda (line)
-             (org-split-string (org-trim line) "\t")
-             )
-           lines))
-         )
-    rows-cols))
+;; (defun ott/csv-table/parse-rows-cols ()
+;;   "Parse the buffer CSV table (tab separated) and return a list
+;; of rows with a list of cols.
+
+;; If there isn't an org-table at point, raise an error."
+;;   (let* (
+;;          (table-text (buffer-substring-no-properties (point-min) (point-max)))
+;;          (lines (org-split-string table-text "\n"))
+;;          (rows-cols
+;;           (mapcar
+;;            (lambda (line)
+;;              (org-split-string (org-trim line) "\t")
+;;              )
+;;            lines))
+;;          )
+;;     rows-cols))
 
 (defun ott/csv-table/render-rows-cols (rows-cols)
   "Insert a CSV table with the ROWS-COLS."
