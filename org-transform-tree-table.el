@@ -262,7 +262,7 @@ on what point is placed on."
   (if (org-at-table-p)
       (ott/tree-table/replace-table-with-tree)
     (if (org-at-heading-p)
-      (ott/tree-table/replace-tree-with-table)
+        (ott/tree-table/replace-tree-with-table)
       (error "Point isn't on an org heading or in an org table.")
       ))
   )
