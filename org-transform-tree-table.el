@@ -251,7 +251,7 @@ Raise an error if point isn't on an org-table."
 return a new buffer with the new tree."
   (interactive)
   (ott/render-new-buffer-from-rows-cols
-   "-tree.csv"
+   "-tree.org"
    (ott/csv-table/parse-rows-cols)
    'ott/org-tree/render-rows-cols)
   )
