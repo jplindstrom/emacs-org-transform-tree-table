@@ -245,10 +245,10 @@ to a table to share with others (export to CSV and open in Excel).
        (org-transform-table/org-tree-buffer-from-csv)
      ;;;; Test
      ;; Extraction did the right thing
-     (should
-      (string=
-       (buffer-substring-no-properties (point-min) (point-max))
-       (ott-data-file-string "expected-csv-table1--tree.org")))
+     (ott-should-string=
+      (buffer-substring-no-properties (point-min) (point-max))
+      (ott-data-file-string "expected-csv-table1--tree.org")
+      "csv to tree")
      )
    )
   )
