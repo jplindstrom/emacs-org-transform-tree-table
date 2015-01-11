@@ -601,19 +601,25 @@ JPL: Use config var
   )
 
 (defun ott/csv-table/insert-values-as-table-row (col-values)
-  "Insert escaped COL-VALUES using CSV format."
+  "Insert quoted and escaped COL-VALUES using CSV format."
   (insert
-   (s-join "\t" (mapcar 'ott/csv-table/escape-value col-values)))
+   (s-join "\t" ;;;JPL: config
+           (mapcar 'ott/csv-table/quote-value
+                   (mapcar 'ott/csv-table/escape-value
+                           col-values))))
   (insert "\n")
   )
 
+(defun ott/csv-table/quote-value (value)
+  "Return VALUE, but quoted."
+  (format "\"%s\"" value))
+
+;;;JPL: deal with newlines?
 (defun ott/csv-table/escape-value (value)
   "Return VALUE but suitable to put in a CSV file. Return an
 empty string for nil values."
   (if value
-      ;;;JPL: escape " to ""
-      ;;;JPL: enclose all values in ""
-      value
+      (replace-regexp-in-string "\"" "\"\"" value) ;; " to ""
     ""))
 
 

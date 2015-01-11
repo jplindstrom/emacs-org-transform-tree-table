@@ -278,16 +278,15 @@ is identical"
            (with-current-buffer
                ;; as a table
                (funcall transform-to-table-from-outline)
-             (should
-              (string=
-               (buffer-substring-no-properties (point-min) (point-max))
-               table-text)
+             (ott-should-string=
+              (buffer-substring-no-properties (point-min) (point-max))
+              table-text
               ))))
        )
      )))
 
 (ert-deftest ott--transform-tree-to-org-table--roundtrip ()
-  "Check that a roundtrip tree->table then ->tree->table is identical"
+  "Check that a roundtrip tree->table org then ->tree->table is identical"
 
   ;; Simple file
   (ott--transform-tree-to-org-table--test-roundtrip
@@ -304,10 +303,27 @@ is identical"
    )
   )
 
+(ert-deftest ott--transform-tree-to-csv-table--roundtrip--simple ()
+  "Check that a roundtrip tree->table csv then ->tree->table is identical"
+
+  ;; Simple file
+  (ott--transform-tree-to-org-table--test-roundtrip
+   "tree1.org"
+   'org-transform-tree/csv-buffer-from-outline
+   'org-transform-table/org-tree-buffer-from-csv
+   )
+
+  ;; with heading text, indentation
+  (ott--transform-tree-to-org-table--test-roundtrip
+   "tree2.org"
+   'org-transform-tree/csv-buffer-from-outline
+   'org-transform-table/org-tree-buffer-from-csv
+   ))
+
 
 
 ;; Run tests at eval-buffer time
 (ert-run-tests-interactively "^ott-")
-;; (ert-run-tests-interactively "^ott--org-tree--heading-text")
+;; (ert-run-tests-interactively "^ott--transform-tree-to-csv-table--roundtrip--simple")
 
 ;;; test/ert.el ends here
