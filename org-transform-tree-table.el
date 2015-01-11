@@ -143,6 +143,17 @@
 ;;; Changes
 ;; -------
 ;;
+;; 2015-01-11 - 0.2.0
+;;
+;; * Proper CSV parsing and rendering (the naive original one didn't
+;;   deal with quoted text properly).
+;;
+;;   Note: may not be backwards compatible if your text contains
+;;   quotes. Workaround: convert to tree first, upgrade and convert
+;;   back.
+;;
+;;
+;;
 ;; 2014-12-28 - 0.1.3
 ;;
 ;; * Transform text below headings
