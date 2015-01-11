@@ -253,7 +253,8 @@ to a table to share with others (export to CSV and open in Excel).
    )
   )
 
-(defun ott--transform-tree-to-org-table--test-roundtrip (file)
+(defun ott--transform-tree-to-org-table--test-roundtrip
+  (file transform-to-table-from-outline transform-to-tree-from-table)
   "Check that a roundtrip of FILE tree->table then ->tree->table
 is identical"
 
@@ -263,20 +264,20 @@ is identical"
 
    (goto-char (point-min))
 
-   (let* ((table-buffer (org-transform-tree/org-table-buffer-from-outline)))
+   (let* ((table-buffer (funcall transform-to-table-from-outline)))
      (with-current-buffer table-buffer
        ;; Original table text
        (let ((table-text (buffer-substring-no-properties (point-min) (point-max))))
          (set-mark (point-max))
          (goto-char (point-min))
          (with-current-buffer
-             (org-transform-table/org-tree-buffer-from-org-table)
+             (funcall transform-to-tree-from-table)
            ;; as a tree
            (set-mark (point-max))
            (goto-char (point-min))
            (with-current-buffer
                ;; as a table
-               (org-transform-tree/org-table-buffer-from-outline)
+               (funcall transform-to-table-from-outline)
              (should
               (string=
                (buffer-substring-no-properties (point-min) (point-max))
@@ -289,11 +290,18 @@ is identical"
   "Check that a roundtrip tree->table then ->tree->table is identical"
 
   ;; Simple file
-  (ott--transform-tree-to-org-table--test-roundtrip "tree1.org")
+  (ott--transform-tree-to-org-table--test-roundtrip
+   "tree1.org"
+   'org-transform-tree/org-table-buffer-from-outline
+   'org-transform-table/org-tree-buffer-from-org-table
+   )
 
   ;; with heading text, indentation
-  (ott--transform-tree-to-org-table--test-roundtrip "tree2.org")
-
+  (ott--transform-tree-to-org-table--test-roundtrip
+   "tree2.org"
+   'org-transform-tree/org-table-buffer-from-outline
+   'org-transform-table/org-tree-buffer-from-org-table
+   )
   )
 
 
