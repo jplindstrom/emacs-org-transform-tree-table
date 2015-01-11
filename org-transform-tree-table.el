@@ -346,7 +346,6 @@ editing."
              )
 
         ;; Insert heading
-        (message "JPL: heading <<%s>>" (prin1-to-string heading-col))
         (insert (concat heading-col "\n"))
 
         ;; Set properties for the heading
