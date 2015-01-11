@@ -47,7 +47,7 @@
 ;;     ;; Org outline to an org table
 ;;     M-x org-transform-tree/org-table-buffer-from-outline
 
-;;     ;; Org outline to CSV (or rather, tab-separated value)
+;;     ;; Org outline to CSV
 ;;     M-x org-transform-tree/csv-table-buffer-from-outline
 
 ;; If the region is active, convert that part of the
@@ -75,7 +75,7 @@
 ;;     ;; From an org table to an org outline
 ;;     M-x org-transform-table/org-tree-buffer-from-org-table
 
-;;     ;; From CSV (tab separated) to an org outline
+;;     ;; From CSV to an org outline
 ;;     M-x org-transform-table/org-tree-buffer-from-csv
 
 ;; When converting from an org table, point must be on a table.
@@ -210,9 +210,7 @@ the user has added to capture information)."
   "Transform an org tree to CSV format and return a new buffer
 with the table.
 
-Except it's not comma separated. It's tab separated because with
-all (non) 'standard' ways to escape ',' in CSV files... let's not
-even go there.
+JPL: Use config var
 
 If the region is active, convert that part of the
 tree. Otherwise, if point is on an org heading, convert that
@@ -553,12 +551,15 @@ empty string for nil values."
 
 
 
-;; Render/parse CSV table (tab separated)
+;; Render/parse CSV table
 
 (defun ott/csv-table/parse-rows-cols ()
-  "Parse the buffer as a CSV table (tab separated) and return a
-list of rows with a list of cols."
-  (let ((pcsv-separator ?\t))
+  "Parse the buffer as a CSV table and return a list of rows with
+a list of cols.
+
+JPL: Use config var
+"
+  (let ((pcsv-separator ?\t)) ;;;JPL: config
     (pcsv-parse-buffer)
     )
   )
@@ -580,6 +581,7 @@ list of rows with a list of cols."
 ;;          )
 ;;     rows-cols))
 
+;;;JPL: extract to its own module csv-render
 (defun ott/csv-table/render-rows-cols (rows-cols)
   "Insert a CSV table with the ROWS-COLS."
     (erase-buffer)
@@ -588,7 +590,7 @@ list of rows with a list of cols."
   )
 
 (defun ott/csv-table/insert-values-as-table-row (col-values)
-  "Insert escaped COL-VALUES using CSV format (tab separated)."
+  "Insert escaped COL-VALUES using CSV format."
   (insert
    (s-join "\t" (mapcar 'ott/csv-table/escape-value col-values)))
   (insert "\n")
@@ -598,6 +600,8 @@ list of rows with a list of cols."
   "Return VALUE but suitable to put in a CSV file. Return an
 empty string for nil values."
   (if value
+      ;;;JPL: escape " to ""
+      ;;;JPL: enclose all values in ""
       value
     ""))
 
