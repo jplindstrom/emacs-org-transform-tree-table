@@ -457,7 +457,7 @@ are in the order they appear in the buffer."
          (all-keys '())
          )
     (dolist (keys entries-keys)
-      (dolist (key keys)
+      (dolist (key (reverse keys)) ;; org-entry-properties returns keys in wrong order
         (add-to-list 'all-keys key t)))
 
     ;; Not sure why this one appears here. Are there others?
