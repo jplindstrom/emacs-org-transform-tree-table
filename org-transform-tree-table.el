@@ -442,10 +442,11 @@ ORG-HEADING-COMPONENTS"
 (defun ott/org-tree/current-property-values-from-keys (property-keys)
   "Return list of values (possibly nil) for each property in
 PROPERTY-KEYS."
-  (mapcar
-   (lambda (key)
-     (assoc-default key (org-entry-properties nil 'standard key)))
-   property-keys))
+  (let* ((entry-properties (org-entry-properties nil 'standard)))
+    (mapcar
+     (lambda (key)
+       (assoc-default key entry-properties))
+     property-keys)))
 
 (defun ott/org-tree/unique-propery-keys-in-buffer-order ()
   "Return list of all unique property keys used in drawers. They
