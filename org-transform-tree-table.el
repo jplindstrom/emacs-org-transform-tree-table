@@ -406,7 +406,7 @@ rest (one for each in property-numbers) are empty strings."
 (defun ott/org-tree/heading-text ()
   "Return the text contents of the current heading (the text
 beneath the '* Heading' itself), or '' if there isn't one."
-  (org-end-of-meta-data-and-drawers)
+  (org-end-of-meta-data t)
   ;; include leading empty lines
   (while (looking-back "[\n ]+\n")
     (backward-char)
