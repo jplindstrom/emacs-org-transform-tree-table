@@ -375,13 +375,7 @@ values for the PROPERTY-KEYS for each tree heading."
                     )
                (cons heading-row heading-text-rows)
                ))))
-         (rows-cols-with-nils (-flatten-n 1 sets-rows-cols))
-         (rows-cols
-          (-filter
-           (lambda (x) x)
-           rows-cols-with-nils
-           ))
-         )
+         (rows-cols (-flatten-n 1 sets-rows-cols)))
     rows-cols
     )
   )
@@ -389,7 +383,9 @@ values for the PROPERTY-KEYS for each tree heading."
 (defun ott/org-tree/heading-text-rows (property-keys)
   "Return rows for each of the current heading text lines, with
 columns where the first column is the line text, and the
-rest (one for each in property-numbers) are empty strings."
+rest (one for each in property-keys) are nils.
+
+If the heading text is empty, return an empty list."
   (let* ((heading-text (ott/org-tree/heading-text))
          (text-lines (org-split-string heading-text "\n"))
          (rows-cols
@@ -399,7 +395,9 @@ rest (one for each in property-numbers) are empty strings."
            text-lines
            ))
          )
-    rows-cols
+    (if (string= heading-text "")  ;; Special case for no text contents
+        '()
+        rows-cols)
     )
   )
 
