@@ -1,23 +1,23 @@
 * Pages
   :PROPERTIES:
-  :COLUMNS:  %30ITEM %10Login %10Access %10Cost
+  :COLUMNS:  %30ITEM %10LOGIN %10ACCESS %10COST
   :END:
 ** About
    :PROPERTIES:
-   :Login:    No
-   :Access:   All
+   :LOGIN:    No
+   :ACCESS:   All
    :END:
 ** Products
    :PROPERTIES:
    :COLUMNS: %30ITEM %10Color
-   :Access:   All
-   :Login:    No
+   :ACCESS:   All
+   :LOGIN:    No
    :END:
 *** Free Widget
     :PROPERTIES:
-    :Access:   All
-    :Login:    Yes
-    :Color:    Green
+    :ACCESS:   All
+    :LOGIN:    Yes
+    :COLOR:    Green
     :END:
 
     This one is:
@@ -25,8 +25,8 @@
     - Green
 *** Paid Thingy
     :PROPERTIES:
-    :Access:   Paid
-    :Cost:     30
-    :Login:    Yes
-    :Color:    Blue
+    :ACCESS:   Paid
+    :COST:     30
+    :LOGIN:    Yes
+    :COLOR:    Blue
     :END:
