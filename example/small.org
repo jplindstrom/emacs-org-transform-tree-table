@@ -1,44 +1,44 @@
 * Pages
   :PROPERTIES:
-  :COLUMNS:  %30ITEM %10Access %10Cost
-  :Access_ALL: All Paid
+  :COLUMNS:  %30ITEM %10ACCESS %10COST
+  :ACCESS_ALL: All Paid
   :END:
 ** About
    :PROPERTIES:
-   :Access:   All
+   :ACCESS:   All
    :END:
 ** Products
    :PROPERTIES:
-   :Access:   All
+   :ACCESS:   All
    :END:
 *** Free Gizmo
     :PROPERTIES:
-    :Access:   All
+    :ACCESS:   All
     :END:
 *** Free Widget
     :PROPERTIES:
-    :Access:   All
+    :ACCESS:   All
     :END:
 *** Paid Thingy
     :PROPERTIES:
-    :Access:   Paid
-    :Cost:     30
+    :ACCESS:   Paid
+    :COST:     30
     :END:
 ** Courses
    :PROPERTIES:
-   :Access:   All
+   :ACCESS:   All
    :END:
 *** Introduction
     :PROPERTIES:
-    :Access:   All
+    :ACCESS:   All
     :END:
 *** Advanced
     :PROPERTIES:
-    :Access:   Paid
-    :Cost:     10
+    :ACCESS:   Paid
+    :COST:     10
     :END:
 *** Super Advanced
     :PROPERTIES:
-    :Access:   Paid
-    :Cost:     100
+    :ACCESS:   Paid
+    :COST:     100
     :END:

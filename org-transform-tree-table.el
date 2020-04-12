@@ -375,13 +375,7 @@ values for the PROPERTY-KEYS for each tree heading."
                     )
                (cons heading-row heading-text-rows)
                ))))
-         (rows-cols-with-nils (-flatten-n 1 sets-rows-cols))
-         (rows-cols
-          (-filter
-           (lambda (x) x)
-           rows-cols-with-nils
-           ))
-         )
+         (rows-cols (-flatten-n 1 sets-rows-cols)))
     rows-cols
     )
   )
@@ -389,7 +383,9 @@ values for the PROPERTY-KEYS for each tree heading."
 (defun ott/org-tree/heading-text-rows (property-keys)
   "Return rows for each of the current heading text lines, with
 columns where the first column is the line text, and the
-rest (one for each in property-numbers) are empty strings."
+rest (one for each in property-keys) are nils.
+
+If the heading text is empty, return an empty list."
   (let* ((heading-text (ott/org-tree/heading-text))
          (text-lines (org-split-string heading-text "\n"))
          (rows-cols
@@ -399,14 +395,16 @@ rest (one for each in property-numbers) are empty strings."
            text-lines
            ))
          )
-    rows-cols
+    (if (string= heading-text "")  ;; Special case for no text contents
+        '()
+        rows-cols)
     )
   )
 
 (defun ott/org-tree/heading-text ()
   "Return the text contents of the current heading (the text
 beneath the '* Heading' itself), or '' if there isn't one."
-  (org-end-of-meta-data-and-drawers)
+  (org-end-of-meta-data t)
   ;; include leading empty lines
   (while (looking-back "[\n ]+\n")
     (backward-char)
@@ -442,10 +440,11 @@ ORG-HEADING-COMPONENTS"
 (defun ott/org-tree/current-property-values-from-keys (property-keys)
   "Return list of values (possibly nil) for each property in
 PROPERTY-KEYS."
-  (mapcar
-   (lambda (key)
-     (assoc-default key (org-entry-properties nil 'standard key)))
-   property-keys))
+  (let* ((entry-properties (org-entry-properties nil 'standard)))
+    (mapcar
+     (lambda (key)
+       (assoc-default key entry-properties))
+     property-keys)))
 
 (defun ott/org-tree/unique-propery-keys-in-buffer-order ()
   "Return list of all unique property keys used in drawers. They
@@ -456,7 +455,7 @@ are in the order they appear in the buffer."
          (all-keys '())
          )
     (dolist (keys entries-keys)
-      (dolist (key keys)
+      (dolist (key (reverse keys)) ;; org-entry-properties returns keys in wrong order
         (add-to-list 'all-keys key t)))
 
     ;; Not sure why this one appears here. Are there others?

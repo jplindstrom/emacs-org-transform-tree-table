@@ -77,24 +77,24 @@ This outline:
 
     * Pages
       :PROPERTIES:
-      :COLUMNS:  %30ITEM %10Login %10Access %10Cost
+      :COLUMNS:  %30ITEM %10LOGIN %10ACCESS %10COST
       :END:
     ** About
        :PROPERTIES:
-       :Login:    No
-       :Access:   All
+       :LOGIN:    No
+       :ACCESS:   All
        :END:
     ** Products
        :PROPERTIES:
        :COLUMNS: %30ITEM %10Color
-       :Access:   All
-       :Login:    No
+       :ACCESS:   All
+       :LOGIN:    No
        :END:
     *** Free Widget
         :PROPERTIES:
-        :Access:   All
-        :Login:    Yes
-        :Color:    Green
+        :ACCESS:   All
+        :LOGIN:    Yes
+        :COLOR:    Green
         :END:
 
         This one is:
@@ -102,15 +102,15 @@ This outline:
         - Green
     *** Paid Thingy
         :PROPERTIES:
-        :Access:   Paid
-        :Cost:     30
-        :Login:    Yes
-        :Color:    Blue
+        :ACCESS:   Paid
+        :COST:     30
+        :LOGIN:    Yes
+        :COLOR:    Blue
         :END:
 
 Transforms into:
 
-    | Heading          | Login | Access | Color | Cost | COLUMNS                            |
+    | Heading          | LOGIN | ACCESS | COLOR | COST | COLUMNS                            |
     | * Pages          |       |        |       |      | %30ITEM %10Login %10Access %10Cost |
     | ** About         | No    | All    |       |      |                                    |
     | ** Products      | No    | All    |       |      | %30ITEM %10Color                   |
@@ -126,7 +126,9 @@ Note that:
   way when the table is being edited in e.g. Excel or Open Office.
 
 * The transformation is only 99% round-trip safe since there might be
-  some reordering of properties taking place.
+  some reordering of properties taking place. Also, org-mode insists
+  on reporting property names in uppper-case, so if you have
+  mixed-case properties they will be mangled :/
 
 * It's possible to have many COLUMNS declarations for different parts
   of the tree. Some of them might be repeated at a lower level. Useful
