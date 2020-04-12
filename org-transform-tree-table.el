@@ -552,9 +552,7 @@ empty string for nil values."
 
 (defun ott/csv-table/parse-rows-cols ()
   "Parse the buffer CSV table (tab separated) and return a list
-of rows with a list of cols.
-
-If there isn't an org-table at point, raise an error."
+of rows with a list of cols."
   (let* (
          (table-text (buffer-substring-no-properties (point-min) (point-max)))
          (lines (org-split-string table-text "\n"))
