@@ -577,6 +577,7 @@ of rows with a list of cols."
              )
            lines))
          )
+    (ott/validate-parsed-rows-cols rows-cols)
     rows-cols))
 
 (defun ott/csv-table/render-rows-cols (rows-cols)
