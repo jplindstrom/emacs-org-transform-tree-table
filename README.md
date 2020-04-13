@@ -10,6 +10,12 @@ with it in column view.
 Then you can transform the outline to a table to share with others
 (export to CSV and open in Excel), and back again.
 
+Note: This makes more sense if you start out from an org-mode tree,
+convert to a table and then convert back again. If you start out with
+a regular table and try to convert it into a tree, it won't have any
+of the org-mode tree stuff in it, so there's no useful structure
+there.
+
 More about column view:
 
 * http://orgmode.org/worg/org-tutorials/org-column-view-tutorial.html
