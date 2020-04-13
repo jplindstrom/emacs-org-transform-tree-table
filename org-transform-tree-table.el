@@ -504,7 +504,18 @@ If there isn't an org-table at point, raise an error."
            (--filter
             (not (string-match org-table-hline-regexp it))
             lines)))
+         (heading-row (car-safe rows-cols))
+         (heading-row-col (car-safe heading-row))
+         (data-row (cadr rows-cols))
+         (data-row-col (car-safe data-row))
          )
+    (when (not (string= heading-row-col "Heading"))
+      (error "org-transform-tree-table error: First row/col isn't 'Heading'.
+This table was probably not an org tree originally."))
+    (when (not (string-match "^*" (or data-row-col "")))
+      (error "org-transform-tree-table error: Second row doesn't start with an org heading level '*'.
+This table was probably not an org tree originally."))
+
     rows-cols))
 
 (defun ott/org-table/render-rows-cols (rows-cols)
